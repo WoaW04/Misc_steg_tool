@@ -2,16 +2,17 @@ import numpy as np
 import PIL.Image as Image
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtGui import QPixmap, QImage
 import cv2
 import sys
 from utils.watermark import *
 
 
-def ToPixmap_1(arr):  # arr对应四通道图片。额外使用PIL.Image模块
+def ToPixmap(arr):  # arr对应四通道图片。额外使用PIL.Image模块
     # https://blog.csdn.net/ielcome2016/article/details/105798279
-    from PIL import Image
-    arr = cv2.cvtColor(arr, cv2.COLOR_RGBA2BGRA)
-    return Image.fromarray(arr).toqpixmap()
+    tmp = Image.fromarray(cv2.cvtColor(arr, cv2.COLOR_RGBA2BGRA)).convert('RGB')
+    tmp = QImage(tmp.tobytes(), tmp.width, tmp.height, QImage.Format_RGB888)
+    return QPixmap.fromImage(tmp)
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -33,7 +34,10 @@ class Ui(QtWidgets.QMainWindow):
 
     def ReadImg(self, path):
         self.src = np.array(Image.open(path))
-        self.ui.ShowImgLabel.setPixmap(ToPixmap_1(self.src))
+        # self.ui.ShowImgLabel.setPixmap(ToPixmap_1(self.src))
+        # pix = QPixmap(path)
+        # pix = QPixmap.fromImage(Image.fromarray(cv2.cvtColor(self.src, cv2.COLOR_RGBA2BGRA)).convert('RGB'))
+        self.ui.ShowImgLabel.setPixmap(ToPixmap(self.src))
 
         print("图像信息：")
         print(f"长：{self.src.shape[1]}\t宽：{self.src.shape[0]}\t通道数：{self.src.shape[2]}")
