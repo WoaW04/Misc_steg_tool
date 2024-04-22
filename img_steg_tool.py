@@ -8,10 +8,12 @@ import sys
 from utils.watermark import *
 
 
-def ToPixmap(arr):  # arr对应四通道图片。额外使用PIL.Image模块
-    # https://blog.csdn.net/ielcome2016/article/details/105798279
-    tmp = Image.fromarray(cv2.cvtColor(arr, cv2.COLOR_RGBA2BGRA)).convert('RGB')
+def ToPixmap(arr):
+    # 从numpy转为Image
+    tmp = Image.fromarray(arr).convert('RGB')
+    # 从Image转为QImage
     tmp = QImage(tmp.tobytes(), tmp.width, tmp.height, QImage.Format_RGB888)
+    # 返回将QImage转QPixmap
     return QPixmap.fromImage(tmp)
 
 
