@@ -4,6 +4,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QFileDialog
 import cv2
 import sys
+from utils.watermark import *
 
 
 def ToPixmap_1(arr):  # arr对应四通道图片。额外使用PIL.Image模块
@@ -46,6 +47,7 @@ class Ui(QtWidgets.QMainWindow):
 
 
 if __name__ == '__main__':
+
     app = QtWidgets.QApplication(sys.argv)
     window = Ui()
     window.show()
