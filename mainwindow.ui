@@ -107,6 +107,13 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QPushButton" name="CleanCurrentImg">
+               <property name="text">
+                <string>清除当前图片</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item>

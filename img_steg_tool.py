@@ -27,12 +27,20 @@ class Ui(QtWidgets.QMainWindow):
         self.InitUI()
 
     def InitUI(self):
-        self.ui.OpenImg.clicked.connect(self.openimg)
-        self.ui.SaveCurrentImg.clicked.connect(self.saveimg)
+        self.ui.OpenImg.clicked.connect(self.OpenImge)
+        self.ui.SaveCurrentImg.clicked.connect(self.SaveImg)
+        self.ui.CleanCurrentImg.clicked.connect(self.CleanImg)
 
-    def openimg(self):
+    def CleanImg(self):
+        if self.ui.ShowImgWidget.layout() is not None:
+            self.ShowImgLabel.clear()
+            self.ShowImgLabel.resize(QSize(200, 100))
+            self.mainLayout.deleteLater()
+
+    def OpenImge(self):
         self.ImgPath, _ = QFileDialog.getOpenFileName(self.centralwidget, "选择图片",
                                                       "./", "Image files (*.jpg *.gif *.png *.jpeg)")
+        self.CleanImg()
         self.ReadImg(self.ImgPath)
 
     def ReadImg(self, path):
@@ -43,7 +51,10 @@ class Ui(QtWidgets.QMainWindow):
 
     def ShowImg(self):
         self.ShowImgLabel = QLabel()
-        self.ShowImgLabel.setPixmap(ToPixmap(self.src))
+        pixmap = ToPixmap(self.src)
+        imgsize = pixmap.size()
+        self.ShowImgLabel.setPixmap(pixmap)
+        self.ShowImgLabel.resize(imgsize)
         self.scroll = QScrollArea()
         self.scroll.setAlignment(Qt.AlignCenter)
         self.scroll.setFrameShape(QFrame.NoFrame)
@@ -52,7 +63,7 @@ class Ui(QtWidgets.QMainWindow):
         self.mainLayout.addWidget(self.scroll, 0, 0)
         self.ui.ShowImgWidget.setLayout(self.mainLayout)
 
-    def saveimg(self):
+    def SaveImg(self):
         Img = self.src
         filepath, _ = QFileDialog.getSaveFileName(self, "文件保存", "/", 'Image files (*.jpg *.gif *.png *.jpeg)')
         file = open(filepath, 'w')
