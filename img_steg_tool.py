@@ -19,12 +19,16 @@ def ToPixmap(arr):
 
 
 class Ui(QtWidgets.QMainWindow):
+
+
     def __init__(self):
         super().__init__()
+        self.mainLayout = None
         self.ui = uic.loadUi("mainwindow.ui", self)
         self.ImgPath = ''
         self.src = np.array(0)
         self.InitUI()
+        
 
     def InitUI(self):
         self.ui.OpenImg.clicked.connect(self.OpenImge)
@@ -35,7 +39,9 @@ class Ui(QtWidgets.QMainWindow):
         if self.ui.ShowImgWidget.layout() is not None:
             self.ShowImgLabel.clear()
             self.ShowImgLabel.resize(QSize(200, 100))
-            self.mainLayout.deleteLater()
+
+            self.mainLayout.removeWidget(self.scroll)
+            # self.mainLayout.deleteLater()
 
     def OpenImge(self):
         self.ImgPath, _ = QFileDialog.getOpenFileName(self.centralwidget, "选择图片",
@@ -59,7 +65,10 @@ class Ui(QtWidgets.QMainWindow):
         self.scroll.setAlignment(Qt.AlignCenter)
         self.scroll.setFrameShape(QFrame.NoFrame)
         self.scroll.setWidget(self.ui.ShowImgLabel)
-        self.mainLayout = QGridLayout()
+
+        if self.mainLayout == None:
+            self.mainLayout = QGridLayout()
+
         self.mainLayout.addWidget(self.scroll, 0, 0)
         self.ui.ShowImgWidget.setLayout(self.mainLayout)
 
