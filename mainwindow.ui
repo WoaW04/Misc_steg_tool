@@ -57,7 +57,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="MainWindow">
        <property name="sizePolicy">
@@ -151,10 +151,10 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QTextBrowser" name="textBrowser"/>
+         <widget class="QTextBrowser" name="ShowBinaryBrowser"/>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true"/>
+         <widget class="QWidget" name="ControlPanel" native="true"/>
         </item>
        </layout>
       </widget>

@@ -1,11 +1,24 @@
+import time
 import numpy as np
 import PIL.Image as Image
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
 from utils.watermark import *
+from io import BytesIO
+
+
+class Thread(QThread):
+    trigger = pyqtSignal(str)
+
+    def __init__(self, parent=None):
+        super(Thread, self).__init__(parent)
+
+    def run_(self):
+        # time.sleep(random.random() * 5)
+        self.trigger.emit()
 
 
 def ToPixmap(arr):
@@ -26,9 +39,12 @@ class Ui(QtWidgets.QMainWindow):
         super().__init__()
         self.mainLayout = None
         self.ui = uic.loadUi("mainwindow.ui", self)  # 加载UI
-        self.ImgPath = ''  # 文件路径
-        self.ImgType = ''  # 文件类型
-        self.ImgSrc = np.array([])  # 存储图像二进制信息数组
+        self.ImgPath = r''  # 文件路径
+        self.ImgType = r''  # 文件类型
+        self.src = None  # 存储图像信息
+        self.bin = np.array([])  # 存储图像二进制信息的np数组
+        self.showbin = Thread()  # 创建线程以打印图片二进制信息
+
         self.InitUI()
 
     def InitUI(self):
@@ -42,7 +58,7 @@ class Ui(QtWidgets.QMainWindow):
         """
         self.ImgPath, self.ImgType = QFileDialog.getOpenFileName(self.centralwidget, "选择图片",
                                                                  "./", "Image files (*.jpg *.gif *.png *.jpeg)")
-        if self.ImgPath == '':
+        if self.ImgPath == r'':
             warning = QMessageBox()  # 创建QMessageBox()对象
             warning.setIcon(QMessageBox.Warning)  # 设置弹窗的QMessageBox.Icon类型
             warning.setWindowTitle('警告')  # 设置弹窗标题
@@ -52,10 +68,12 @@ class Ui(QtWidgets.QMainWindow):
             warning.exec_()  # 指定退出键；返回选中按钮的值
         else:
             self.CleanImg()
-            self.src = np.array(Image.open(self.ImgPath))
+            self.src = Image.open(self.ImgPath, 'r')
+            self.bin = np.array(self.src)
             self.ShowImg()
             print("图像信息：")
-            print(f"长：{self.src.shape[1]}\t宽：{self.src.shape[0]}\t通道数：{self.src.shape[2]}")
+            print(f"长：{self.bin.shape[1]}\t宽：{self.bin.shape[0]}\t通道数：{self.bin.shape[2]}")
+            self.ShowBinary()
 
     def ShowImg(self):
         """
@@ -63,7 +81,7 @@ class Ui(QtWidgets.QMainWindow):
         图片小于窗口则居中，否则出现滚动条
         """
         self.ShowImgLabel = QLabel()
-        pixmap = ToPixmap(self.src)
+        pixmap = ToPixmap(self.bin)
         imgsize = pixmap.size()
         self.ShowImgLabel.setPixmap(pixmap)
         self.ShowImgLabel.resize(imgsize)
@@ -104,7 +122,26 @@ class Ui(QtWidgets.QMainWindow):
             self.ShowImgLabel.clear()
             self.ShowImgLabel.resize(QSize(200, 100))
             self.mainLayout.removeWidget(self.scroll)
-            self.src = np.array([])
+            self.src = None  # 存储图像信息
+            self.bin = np.array([])  # 存储图像二进制信息的np数组
+            self.ui.ShowBinaryBrowser.setText("")
+
+    def ShowBinary(self):
+        self.hexdump(self.ImgPath)
+
+    def hexdump(self, filename, bytes_per_line=16):
+        tmpPath = filename
+        with open(filename, 'rb') as f:
+            offset = 0
+            while True:
+                chunk = f.read(bytes_per_line)
+                if not chunk or self.ImgPath != tmpPath:
+                    break
+                hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
+                ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
+                self.ui.ShowBinaryBrowser.append('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))
+                offset += bytes_per_line
+                QApplication.processEvents()
 
 
 if __name__ == '__main__':
