@@ -56,6 +56,7 @@ class Ui(QtWidgets.QMainWindow):
         """
         打开图片并转为numpyarray
         """
+        self.CleanImg()
         self.ImgPath, self.ImgType = QFileDialog.getOpenFileName(self.centralwidget, "选择图片",
                                                                  "./", "Image files (*.jpg *.gif *.png *.jpeg)")
         if self.ImgPath == r'':
@@ -67,7 +68,6 @@ class Ui(QtWidgets.QMainWindow):
             warning.setDefaultButton(quit)    # 设置默认按钮
             warning.exec_()  # 指定退出键；返回选中按钮的值
         else:
-            self.CleanImg()
             self.src = Image.open(self.ImgPath, 'r')
             self.bin = np.array(self.src)
             self.ShowImg()
@@ -125,23 +125,26 @@ class Ui(QtWidgets.QMainWindow):
             self.src = None  # 存储图像信息
             self.bin = np.array([])  # 存储图像二进制信息的np数组
             self.ui.ShowBinaryBrowser.setText("")
+            self.ImgPath = r''
 
     def ShowBinary(self):
-        self.hexdump(self.ImgPath)
+        self.hexdump(self.bin, self.ImgPath)
 
-    def hexdump(self, filename, bytes_per_line=16):
-        tmpPath = filename
-        with open(filename, 'rb') as f:
-            offset = 0
-            while True:
-                chunk = f.read(bytes_per_line)
-                if not chunk or self.ImgPath != tmpPath:
-                    break
-                hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
-                ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
-                self.ui.ShowBinaryBrowser.append('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))
-                offset += bytes_per_line
-                QApplication.processEvents()
+    def hexdump(self, nparr, path, bytes_per_line=16):
+        bin = nparr.tobytes()
+        tmppath = path
+        # with open(bin, 'rb') as f:
+        offset = 0
+        while offset <= len(bin):
+            # chunk = f.read(bytes_per_line)
+            chunk = bin[offset: offset + bytes_per_line]
+            if not chunk or tmppath != self.ImgPath:
+                break
+            hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
+            ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
+            self.ui.ShowBinaryBrowser.append('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))
+            offset += bytes_per_line
+            QApplication.processEvents()
 
 
 if __name__ == '__main__':
