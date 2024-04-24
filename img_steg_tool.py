@@ -98,7 +98,7 @@ class Ui(QtWidgets.QMainWindow):
         """
         保存图片
         """
-        if self.src.shape == (0,):
+        if self.ImgPath == r'':
             warning = QMessageBox()  # 创建QMessageBox()对象
             warning.setIcon(QMessageBox.Warning)  # 设置弹窗的QMessageBox.Icon类型
             warning.setWindowTitle('警告')  # 设置弹窗标题
