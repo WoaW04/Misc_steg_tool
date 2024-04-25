@@ -130,24 +130,62 @@ class Ui(QtWidgets.QMainWindow):
     def ShowBinary(self):
         self.hexdump(self.bin, self.ImgPath)
 
+    # def hexdump(self, nparr, path, bytes_per_line=16):
+    #     bin = nparr.tobytes()
+    #     tmppath = path
+    #     offset = 0
+    #     dump = ""
+    #     while offset <= len(bin):
+    #         # chunk = f.read(bytes_per_line)
+    #         chunk = bin[offset: offset + bytes_per_line]
+    #         if not chunk or tmppath != self.ImgPath:
+    #             break
+    #         hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
+    #         ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
+
+    #         # self.ui.ShowBinaryBrowser.append('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))
+    #         dump += ('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))+'\n'
+    #         offset += bytes_per_line
+    #         QApplication.processEvents()
+    #     print("dump:", dump)
+    #     self.showbin.run_(dump)
+    #     # self.ui.ShowBinaryBrowser.setPlainText(dump)
+
+
     def hexdump(self, nparr, path, bytes_per_line=16):
+        import concurrent.futures
+        import threading
+
+        lock = threading.Lock()
+        dumpDict = {}
+        def process_chunk(chunk, offset, idx):
+            hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
+            ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
+            # print(hex_line)
+            # QApplication.processEvents()
+            currentLine = '{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line)
+            lock.acquire()
+            dumpDict[idx] = currentLine
+            lock.release()
         bin = nparr.tobytes()
         tmppath = path
         offset = 0
-        dump = ""
-        while offset <= len(bin):
-            # chunk = f.read(bytes_per_line)
-            chunk = bin[offset: offset + bytes_per_line]
-            if not chunk or tmppath != self.ImgPath:
-                break
-            hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
-            ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
-            # self.ui.ShowBinaryBrowser.append('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))
-            dump += ('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))+'\n'
-            offset += bytes_per_line
-            QApplication.processEvents()
-        self.showbin.run_(dump)
-        # self.ui.ShowBinaryBrowser.setPlainText(dump)
+
+        idx = 0
+
+        with concurrent.futures.ThreadPoolExecutor(50) as t:
+            while offset <= len(bin):
+                chunk = bin[offset: offset + bytes_per_line]
+                if not chunk or tmppath != self.ImgPath:
+                    break
+                
+                t.submit(process_chunk, chunk=chunk, offset=offset, idx=idx)
+                idx = idx + 1
+                offset += bytes_per_line
+                QApplication.processEvents()
+
+        # print("dump:", dumpDict)
+        self.showbin.run_("\n".join(dumpDict.values()))
 
     def update_text(self, message):
         self.ui.ShowBinaryBrowser.setPlainText(message)
