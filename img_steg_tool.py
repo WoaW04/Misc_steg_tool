@@ -16,9 +16,8 @@ class Thread(QThread):
     def __init__(self, parent=None):
         super(Thread, self).__init__(parent)
 
-    def run_(self):
-        # time.sleep(random.random() * 5)
-        self.trigger.emit()
+    def run_(self, message):
+        self.trigger.emit(message)
 
 
 def ToPixmap(arr):
@@ -43,8 +42,9 @@ class Ui(QtWidgets.QMainWindow):
         self.ImgType = r''  # 文件类型
         self.src = None  # 存储图像信息
         self.bin = np.array([])  # 存储图像二进制信息的np数组
-        self.showbin = Thread()  # 创建线程以打印图片二进制信息
-
+        self.showbin = Thread(self)  # 创建线程以打印图片二进制信息
+        self.showbin.trigger.connect(self.update_text)
+        self.timer = QTimer()
         self.InitUI()
 
     def InitUI(self):
@@ -133,8 +133,8 @@ class Ui(QtWidgets.QMainWindow):
     def hexdump(self, nparr, path, bytes_per_line=16):
         bin = nparr.tobytes()
         tmppath = path
-        # with open(bin, 'rb') as f:
         offset = 0
+        dump = ""
         while offset <= len(bin):
             # chunk = f.read(bytes_per_line)
             chunk = bin[offset: offset + bytes_per_line]
@@ -142,9 +142,15 @@ class Ui(QtWidgets.QMainWindow):
                 break
             hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
             ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
-            self.ui.ShowBinaryBrowser.append('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))
+            # self.ui.ShowBinaryBrowser.append('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))
+            dump += ('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))+'\n'
             offset += bytes_per_line
             QApplication.processEvents()
+        self.showbin.run_(dump)
+        # self.ui.ShowBinaryBrowser.setPlainText(dump)
+
+    def update_text(self, message):
+        self.ui.ShowBinaryBrowser.setPlainText(message)
 
 
 if __name__ == '__main__':
