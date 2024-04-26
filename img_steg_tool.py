@@ -7,7 +7,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
 from utils.watermark import *
-from io import BytesIO
 
 
 class Thread(QThread):
@@ -44,7 +43,6 @@ class Ui(QtWidgets.QMainWindow):
         self.bin = np.array([])  # 存储图像二进制信息的np数组
         self.showbin = Thread(self)  # 创建线程以打印图片二进制信息
         self.showbin.trigger.connect(self.update_text)
-        self.timer = QTimer()
         self.InitUI()
 
     def InitUI(self):
@@ -73,7 +71,7 @@ class Ui(QtWidgets.QMainWindow):
             self.ShowImg()
             print("图像信息：")
             print(f"长：{self.bin.shape[1]}\t宽：{self.bin.shape[0]}\t通道数：{self.bin.shape[2]}")
-            self.ShowBinary()
+            self.hexdump(self.bin)
 
     def ShowImg(self):
         """
@@ -127,48 +125,25 @@ class Ui(QtWidgets.QMainWindow):
             self.ui.ShowBinaryBrowser.setText("")
             self.ImgPath = r''
 
-    def ShowBinary(self):
-        self.hexdump(self.bin, self.ImgPath)
-
-    # def hexdump(self, nparr, path, bytes_per_line=16):
-    #     bin = nparr.tobytes()
-    #     tmppath = path
-    #     offset = 0
-    #     dump = ""
-    #     while offset <= len(bin):
-    #         # chunk = f.read(bytes_per_line)
-    #         chunk = bin[offset: offset + bytes_per_line]
-    #         if not chunk or tmppath != self.ImgPath:
-    #             break
-    #         hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
-    #         ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
-
-    #         # self.ui.ShowBinaryBrowser.append('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))
-    #         dump += ('{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line))+'\n'
-    #         offset += bytes_per_line
-    #         QApplication.processEvents()
-    #     print("dump:", dump)
-    #     self.showbin.run_(dump)
-    #     # self.ui.ShowBinaryBrowser.setPlainText(dump)
-
-
-    def hexdump(self, nparr, path, bytes_per_line=16):
+    def hexdump(self, nparr, bytes_per_line=16):
+        """
+        用于显示二进制，需要输入处理好的nparr
+        """
         import concurrent.futures
         import threading
 
         lock = threading.Lock()
         dumpDict = {}
+
         def process_chunk(chunk, offset, idx):
             hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
             ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
-            # print(hex_line)
-            # QApplication.processEvents()
             currentLine = '{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line)
             lock.acquire()
             dumpDict[idx] = currentLine
             lock.release()
         bin = nparr.tobytes()
-        tmppath = path
+        tmppath = self.ImgPath
         offset = 0
 
         idx = 0
@@ -178,13 +153,11 @@ class Ui(QtWidgets.QMainWindow):
                 chunk = bin[offset: offset + bytes_per_line]
                 if not chunk or tmppath != self.ImgPath:
                     break
-                
+
                 t.submit(process_chunk, chunk=chunk, offset=offset, idx=idx)
                 idx = idx + 1
                 offset += bytes_per_line
                 QApplication.processEvents()
-
-        # print("dump:", dumpDict)
         self.showbin.run_("\n".join(dumpDict.values()))
 
     def update_text(self, message):
