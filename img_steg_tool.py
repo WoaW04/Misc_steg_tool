@@ -71,7 +71,6 @@ class Ui(QtWidgets.QMainWindow):
             self.ShowImg()
             print("图像信息：")
             print(f"长：{self.bin.shape[1]}\t宽：{self.bin.shape[0]}\t通道数：{self.bin.shape[2]}")
-            self.hexdump(self.bin)
 
     def ShowImg(self):
         """
