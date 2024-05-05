@@ -49,6 +49,13 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.OpenImg.clicked.connect(self.OpenImge)
         self.ui.SaveCurrentImg.clicked.connect(self.SaveImg)
         self.ui.CleanCurrentImg.clicked.connect(self.CleanImg)
+        """
+        LSB图像隐写
+        """
+        self.encodelineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.encodecheckBox.stateChanged.connect(lambda: self.encodelineEdit.setEchoMode(QtWidgets.QLineEdit.Normal) if self.encodecheckBox.isChecked() else self.encodelineEdit.setEchoMode(QtWidgets.QLineEdit.Password))
+        self.decodelineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.decodecheckBox.stateChanged.connect(lambda: self.decodelineEdit.setEchoMode(QtWidgets.QLineEdit.Normal) if self.decodecheckBox.isChecked() else self.decodelineEdit.setEchoMode(QtWidgets.QLineEdit.Password))
 
     def OpenImge(self):
         """

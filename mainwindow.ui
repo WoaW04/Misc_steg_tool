@@ -162,25 +162,32 @@
        <attribute name="title">
         <string>LSB图像隐写</string>
        </attribute>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="encodelabel_1">
         <property name="geometry">
          <rect>
-          <x>150</x>
+          <x>170</x>
           <y>50</y>
-          <width>53</width>
-          <height>15</height>
+          <width>71</width>
+          <height>31</height>
          </rect>
         </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 85, 255);
+font: 12pt &quot;Microsoft YaHei UI&quot;;</string>
+        </property>
         <property name="text">
-         <string>隐写文本</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;隐写文本&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>false</bool>
         </property>
        </widget>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="encodelabel_2">
         <property name="geometry">
          <rect>
-          <x>72</x>
-          <y>110</y>
-          <width>101</width>
+          <x>70</x>
+          <y>100</y>
+          <width>81</width>
           <height>20</height>
          </rect>
         </property>
@@ -188,21 +195,21 @@
          <string>输入隐写文本：</string>
         </property>
        </widget>
-       <widget class="QTextEdit" name="textEdit">
+       <widget class="QTextEdit" name="encodetextEdit">
         <property name="geometry">
          <rect>
           <x>70</x>
           <y>130</y>
-          <width>261</width>
+          <width>281</width>
           <height>231</height>
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="encodelabel_3">
         <property name="geometry">
          <rect>
           <x>72</x>
-          <y>400</y>
+          <y>390</y>
           <width>81</width>
           <height>20</height>
          </rect>
@@ -211,21 +218,21 @@
          <string>输入加密密码：</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="encodelineEdit">
         <property name="geometry">
          <rect>
           <x>160</x>
-          <y>400</y>
+          <y>390</y>
           <width>113</width>
           <height>21</height>
          </rect>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="encodepushButton">
         <property name="geometry">
          <rect>
-          <x>160</x>
-          <y>480</y>
+          <x>170</x>
+          <y>470</y>
           <width>75</width>
           <height>23</height>
          </rect>
@@ -234,24 +241,28 @@
          <string>隐写并保存</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="decodelabel_1">
         <property name="geometry">
          <rect>
-          <x>640</x>
+          <x>650</x>
           <y>50</y>
-          <width>53</width>
-          <height>15</height>
+          <width>71</width>
+          <height>31</height>
          </rect>
         </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 85, 255);
+font: 12pt &quot;Microsoft YaHei UI&quot;;</string>
+        </property>
         <property name="text">
-         <string>提取文本</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;提取文本&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="decodepushButton">
         <property name="geometry">
          <rect>
-          <x>620</x>
-          <y>170</y>
+          <x>650</x>
+          <y>140</y>
           <width>75</width>
           <height>23</height>
          </rect>
@@ -260,12 +271,12 @@
          <string>提取</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="decodelabel_3">
         <property name="geometry">
          <rect>
-          <x>530</x>
-          <y>220</y>
-          <width>101</width>
+          <x>540</x>
+          <y>230</y>
+          <width>81</width>
           <height>20</height>
          </rect>
         </property>
@@ -273,37 +284,115 @@
          <string>提取隐写文本：</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit_2">
+       <widget class="QLineEdit" name="decodelineEdit">
         <property name="geometry">
          <rect>
-          <x>618</x>
-          <y>110</y>
+          <x>630</x>
+          <y>100</y>
           <width>113</width>
           <height>21</height>
          </rect>
         </property>
        </widget>
-       <widget class="QTextEdit" name="textEdit_2">
+       <widget class="QTextEdit" name="decodetextEdit">
         <property name="geometry">
          <rect>
-          <x>528</x>
-          <y>240</y>
-          <width>261</width>
+          <x>540</x>
+          <y>260</y>
+          <width>281</width>
           <height>231</height>
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="decodelabel_2">
         <property name="geometry">
          <rect>
-          <x>530</x>
-          <y>110</y>
+          <x>540</x>
+          <y>100</y>
           <width>81</width>
           <height>20</height>
          </rect>
         </property>
         <property name="text">
          <string>输入解密密码：</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="encodecheckBox">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>390</y>
+          <width>71</width>
+          <height>19</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>显示密码</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="decodecheckBox">
+        <property name="geometry">
+         <rect>
+          <x>750</x>
+          <y>100</y>
+          <width>71</width>
+          <height>19</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>显示密码</string>
+        </property>
+       </widget>
+       <widget class="QProgressBar" name="encodeprogressBar">
+        <property name="geometry">
+         <rect>
+          <x>110</x>
+          <y>430</y>
+          <width>241</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="encodelabel_4">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>430</y>
+          <width>31</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>进度：</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="decodelabel_4">
+        <property name="geometry">
+         <rect>
+          <x>540</x>
+          <y>180</y>
+          <width>31</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>进度：</string>
+        </property>
+       </widget>
+       <widget class="QProgressBar" name="decodeprogressBar">
+        <property name="geometry">
+         <rect>
+          <x>580</x>
+          <y>180</y>
+          <width>241</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
        </widget>
       </widget>
