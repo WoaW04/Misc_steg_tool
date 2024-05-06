@@ -1,4 +1,3 @@
-import time
 import numpy as np
 import PIL.Image as Image
 from PyQt5 import QtWidgets, uic
