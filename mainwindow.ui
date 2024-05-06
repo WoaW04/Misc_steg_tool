@@ -57,7 +57,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="MainWindow">
        <property name="sizePolicy">
@@ -117,7 +117,21 @@
             </layout>
            </item>
            <item>
-            <widget class="QWidget" name="widget_3" native="true"/>
+            <widget class="QWidget" name="widget_3" native="true">
+             <widget class="QPushButton" name="btnLoadPlugin">
+              <property name="geometry">
+               <rect>
+                <x>40</x>
+                <y>90</y>
+                <width>121</width>
+                <height>41</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>添加插件測試</string>
+              </property>
+             </widget>
+            </widget>
            </item>
           </layout>
          </widget>
