@@ -8,6 +8,15 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+import sys
+
+
+class Ui(QtWidgets.QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+        self.mainLayout = None
+        self.ui = uic.loadUi("LSBWindow.ui", self)  # 加载UI
 
 
 class FileError(Exception):
@@ -134,7 +143,10 @@ def decode(input_filepath, password=None, progressBar=None):
 
 
 if __name__ == "__main__":
-
+    app = QtWidgets.QApplication(sys.argv)
+    window = Ui()
+    window.show()
+    sys.exit(app.exec_())
     ch = int(input('你要想进行什么操作？\n\n1.加密\n2.解密\n\n请输入(1或2)：'))
     if ch == 1:
         ip_file = input('\n输入图片名称(路径)(带扩展名)：')
