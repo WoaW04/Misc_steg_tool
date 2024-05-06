@@ -6,7 +6,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
-from utils.watermark import *
 
 
 class Thread(QThread):
@@ -49,13 +48,6 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.OpenImg.clicked.connect(self.OpenImge)
         self.ui.SaveCurrentImg.clicked.connect(self.SaveImg)
         self.ui.CleanCurrentImg.clicked.connect(self.CleanImg)
-        """
-        LSB图像隐写
-        """
-        self.encodelineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
-        self.encodecheckBox.stateChanged.connect(lambda: self.encodelineEdit.setEchoMode(QtWidgets.QLineEdit.Normal) if self.encodecheckBox.isChecked() else self.encodelineEdit.setEchoMode(QtWidgets.QLineEdit.Password))
-        self.decodelineEdit.setEchoMode(QtWidgets.QLineEdit.Password)
-        self.decodecheckBox.stateChanged.connect(lambda: self.decodelineEdit.setEchoMode(QtWidgets.QLineEdit.Normal) if self.decodecheckBox.isChecked() else self.decodelineEdit.setEchoMode(QtWidgets.QLineEdit.Password))
 
     def OpenImge(self):
         """
@@ -133,7 +125,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def hexdump(self, nparr, bytes_per_line=16):
         """
-        用于显示二进制，需要输入处理好的nparr
+        用于显示二进制，输入处理好的nparr
         """
         import concurrent.futures
         import threading
