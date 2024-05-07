@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
-
+from importlib import import_module
 
 class Thread(QThread):
     trigger = pyqtSignal(str)
@@ -43,10 +43,35 @@ class Ui(QtWidgets.QMainWindow):
         self.showbin.trigger.connect(self.update_text)
         self.InitUI()
 
+        self.importPlugins = {} # 保存所有已加載的插件名
+
     def InitUI(self):
         self.ui.OpenImg.clicked.connect(self.OpenImge)
         self.ui.SaveCurrentImg.clicked.connect(self.SaveImg)
         self.ui.CleanCurrentImg.clicked.connect(self.CleanImg)
+        self.ui.btnLoadPlugin.clicked.connect(self.loadPlugin)
+
+    def loadPlugin(self):
+
+        filePath, _ = QFileDialog.getOpenFileName(self, "Select Plugin", filter="Python Files (*.py)")
+        # 獲取.py文件名
+        moduleName = filePath.split("/")[-1].split(".")[0]
+
+        # 防止重複添加
+        if self.importPlugins.get(moduleName) != None:
+            QMessageBox.warning(self, "警告", f"{moduleName}插件已被加載，請勿重複添加!!!")
+            return 
+        
+        self.importPlugins[moduleName] = True
+        # py動態加載模塊的方式
+        module = import_module(moduleName)
+        # 獲取模塊的Ui
+        moduleUI = module.Ui()
+        # 添加到Tab中
+        self.ui.Tab.addTab(moduleUI, moduleUI.name)
+            
+
+
 
     def OpenImge(self):
         """

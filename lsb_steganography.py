@@ -12,11 +12,18 @@ import sys
 
 
 class Ui(QtWidgets.QMainWindow):
-
+    # 顯示在主程序Tab中的標題
+    name = "LSB隱寫模塊"
     def __init__(self):
         super().__init__()
         self.mainLayout = None
         self.ui = uic.loadUi("LSBWindow.ui", self)  # 加载UI
+
+        # test
+        self.ui.btnTest.clicked.connect(self.test)
+
+    def test(self):
+        QMessageBox.information(self, "TEST", f"success")
 
 
 class FileError(Exception):
