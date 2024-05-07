@@ -7,14 +7,15 @@ from PyQt5.QtCore import *
 import sys
 from importlib import import_module
 
-class Thread(QThread):
-    trigger = pyqtSignal(str)
 
-    def __init__(self, parent=None):
-        super(Thread, self).__init__(parent)
+# class Thread(QThread):
+#     trigger = pyqtSignal(str)
 
-    def run_(self, message):
-        self.trigger.emit(message)
+#     def __init__(self, parent=None):
+#         super(Thread, self).__init__(parent)
+
+#     def run_(self, message):
+#         self.trigger.emit(message)
 
 
 def ToPixmap(arr):
@@ -39,11 +40,11 @@ class Ui(QtWidgets.QMainWindow):
         self.ImgType = r''  # 文件类型
         self.src = None  # 存储图像信息
         self.bin = np.array([])  # 存储图像二进制信息的np数组
-        self.showbin = Thread(self)  # 创建线程以打印图片二进制信息
-        self.showbin.trigger.connect(self.update_text)
+        # self.showbin = Thread(self)  # 创建线程以打印图片二进制信息
+        # self.showbin.trigger.connect(self.update_text)
         self.InitUI()
 
-        self.importPlugins = {} # 保存所有已加載的插件名
+        self.importPlugins = {}  # 保存所有已加載的插件名
 
     def InitUI(self):
         self.ui.OpenImg.clicked.connect(self.OpenImge)
@@ -60,8 +61,8 @@ class Ui(QtWidgets.QMainWindow):
         # 防止重複添加
         if self.importPlugins.get(moduleName) != None:
             QMessageBox.warning(self, "警告", f"{moduleName}插件已被加載，請勿重複添加!!!")
-            return 
-        
+            return
+
         self.importPlugins[moduleName] = True
         # py動態加載模塊的方式
         module = import_module(moduleName)
@@ -69,9 +70,6 @@ class Ui(QtWidgets.QMainWindow):
         moduleUI = module.Ui()
         # 添加到Tab中
         self.ui.Tab.addTab(moduleUI, moduleUI.name)
-            
-
-
 
     def OpenImge(self):
         """
@@ -144,46 +142,46 @@ class Ui(QtWidgets.QMainWindow):
             self.mainLayout.removeWidget(self.scroll)
             self.src = None  # 存储图像信息
             self.bin = np.array([])  # 存储图像二进制信息的np数组
-            self.ui.ShowBinaryBrowser.setText("")
+            # self.ui.ShowBinaryBrowser.setText("")
             self.ImgPath = r''
 
-    def hexdump(self, nparr, bytes_per_line=16):
-        """
-        用于显示二进制，输入处理好的nparr
-        """
-        import concurrent.futures
-        import threading
+    # def hexdump(self, nparr, bytes_per_line=16):
+    #     """
+    #     用于显示二进制，输入处理好的nparr
+    #     """
+    #     import concurrent.futures
+    #     import threading
 
-        lock = threading.Lock()
-        dumpDict = {}
+    #     lock = threading.Lock()
+    #     dumpDict = {}
 
-        def process_chunk(chunk, offset, idx):
-            hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
-            ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
-            currentLine = '{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line)
-            lock.acquire()
-            dumpDict[idx] = currentLine
-            lock.release()
-        bin = nparr.tobytes()
-        tmppath = self.ImgPath
-        offset = 0
+    #     def process_chunk(chunk, offset, idx):
+    #         hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
+    #         ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
+    #         currentLine = '{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line)
+    #         lock.acquire()
+    #         dumpDict[idx] = currentLine
+    #         lock.release()
+    #     bin = nparr.tobytes()
+    #     tmppath = self.ImgPath
+    #     offset = 0
 
-        idx = 0
+    #     idx = 0
 
-        with concurrent.futures.ThreadPoolExecutor(50) as t:
-            while offset <= len(bin):
-                chunk = bin[offset: offset + bytes_per_line]
-                if not chunk or tmppath != self.ImgPath:
-                    break
+    #     with concurrent.futures.ThreadPoolExecutor(50) as t:
+    #         while offset <= len(bin):
+    #             chunk = bin[offset: offset + bytes_per_line]
+    #             if not chunk or tmppath != self.ImgPath:
+    #                 break
 
-                t.submit(process_chunk, chunk=chunk, offset=offset, idx=idx)
-                idx = idx + 1
-                offset += bytes_per_line
-                QApplication.processEvents()
-        self.showbin.run_("\n".join(dumpDict.values()))
+    #             t.submit(process_chunk, chunk=chunk, offset=offset, idx=idx)
+    #             idx = idx + 1
+    #             offset += bytes_per_line
+    #             QApplication.processEvents()
+    #     self.showbin.run_("\n".join(dumpDict.values()))
 
-    def update_text(self, message):
-        self.ui.ShowBinaryBrowser.setPlainText(message)
+    # def update_text(self, message):
+    #     self.ui.ShowBinaryBrowser.setPlainText(message)
 
 
 if __name__ == '__main__':

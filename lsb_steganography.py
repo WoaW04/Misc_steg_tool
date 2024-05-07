@@ -14,16 +14,18 @@ import sys
 class Ui(QtWidgets.QMainWindow):
     # 顯示在主程序Tab中的標題
     name = "LSB隱寫模塊"
+
     def __init__(self):
         super().__init__()
         self.mainLayout = None
         self.ui = uic.loadUi("LSBWindow.ui", self)  # 加载UI
+        self.InitUI()
 
-        # test
-        self.ui.btnTest.clicked.connect(self.test)
+    def InitUI(self):
+        self.ui.LSBSelectFileButton.clicked.connect(self.SelectEmbedFile)
 
-    def test(self):
-        QMessageBox.information(self, "TEST", f"success")
+    def SelectEmbedFile(self):
+        filePath, _ = QFileDialog.getOpenFileName(self, "Select File", filter="Any Files (*)")
 
 
 class FileError(Exception):
