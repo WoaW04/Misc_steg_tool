@@ -9,16 +9,18 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
+import os
 
 
 class Ui(QtWidgets.QMainWindow):
     # 顯示在主程序Tab中的標題
-    name = "LSB隱寫模塊"
+    NAME = "LSB隱寫模塊"
+    UI_PATH = os.path.dirname(__file__) + '/' + "LSBWindow.ui"
 
     def __init__(self):
         super().__init__()
         self.mainLayout = None
-        self.ui = uic.loadUi("LSBWindow.ui", self)  # 加载UI
+        self.ui = uic.loadUi(self.UI_PATH, self)  # 加载UI
         self.InitUI()
 
     def InitUI(self):

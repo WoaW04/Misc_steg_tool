@@ -6,6 +6,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
 from importlib import import_module
+import os
 
 
 # class Thread(QThread):
@@ -31,6 +32,7 @@ def ToPixmap(arr):
 
 
 class Ui(QtWidgets.QMainWindow):
+    PLUGIN_PATH = os.path.dirname(__file__) + "/" + "plugins"
 
     def __init__(self):
         super().__init__()
@@ -42,9 +44,11 @@ class Ui(QtWidgets.QMainWindow):
         self.bin = np.array([])  # 存储图像二进制信息的np数组
         # self.showbin = Thread(self)  # 创建线程以打印图片二进制信息
         # self.showbin.trigger.connect(self.update_text)
-        self.InitUI()
-
         self.importPlugins = {}  # 保存所有已加載的插件名
+        
+        self.InitUI()
+        self.initPlugin()
+
 
     def InitUI(self):
         self.ui.OpenImg.clicked.connect(self.OpenImge)
@@ -52,24 +56,31 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.CleanCurrentImg.clicked.connect(self.CleanImg)
         self.ui.btnLoadPlugin.clicked.connect(self.loadPlugin)
 
-    def loadPlugin(self):
+    def initPlugin(self):
+        pluginsDirName = self.PLUGIN_PATH.split("/")[-1]
+        fileNames = os.listdir(self.PLUGIN_PATH)
+        for fileName in fileNames:
+            if fileName.endswith(".py"):
+                self.loadPlugin(f"{pluginsDirName}.{fileName.split('.')[0]}")
 
-        filePath, _ = QFileDialog.getOpenFileName(self, "Select Plugin", filter="Python Files (*.py)")
-        # 獲取.py文件名
-        moduleName = filePath.split("/")[-1].split(".")[0]
+    def loadPlugin(self, pluginName):
+
+        # filePath, _ = QFileDialog.getOpenFileName(self, "Select Plugin", filter="Python Files (*.py)")
+        # # 獲取.py文件名
+        # pluginName = filePath.split("/")[-1].split(".")[0]
 
         # 防止重複添加
-        if self.importPlugins.get(moduleName) != None:
-            QMessageBox.warning(self, "警告", f"{moduleName}插件已被加載，請勿重複添加!!!")
+        if self.importPlugins.get(pluginName) != None:
+            QMessageBox.warning(self, "警告", f"{pluginName}插件已被加載，請勿重複添加!!!")
             return
 
-        self.importPlugins[moduleName] = True
+        self.importPlugins[pluginName] = True
         # py動態加載模塊的方式
-        module = import_module(moduleName)
+        module = import_module(pluginName)
         # 獲取模塊的Ui
         moduleUI = module.Ui()
         # 添加到Tab中
-        self.ui.Tab.addTab(moduleUI, moduleUI.name)
+        self.ui.Tab.addTab(moduleUI, moduleUI.NAME)
 
     def OpenImge(self):
         """
