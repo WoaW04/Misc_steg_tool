@@ -1,5 +1,11 @@
 import os
-from struct import pack, unpack
+from struct import unpack
+from cryptography.fernet import Fernet
+import PIL.Image as Image
+from PyQt5 import QtWidgets, uic
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
 class Eocd:
     def __init__(self):
@@ -124,7 +130,6 @@ class ZipSteganography:
             f.write(fileData)
 
 
-
 class ZipFake:
     """
     偽加密原理: 
@@ -154,12 +159,79 @@ class ZipFake:
     
     @staticmethod
     def encrypt(zipPath, outputPath):
-        ZipFakeEncrypt.modify(zipPath, outputPath, b'\x05')
+        ZipFake.modify(zipPath, outputPath, b'\x05')
     @staticmethod
     def decrypt(zipPath, outputPath):
-        ZipFakeEncrypt.modify(zipPath, outputPath, b'\x00')
+        ZipFake.modify(zipPath, outputPath, b'\x00')
 
 
+
+class Ui(QtWidgets.QMainWindow):
+    # 顯示在主程序Tab中的標題
+    NAME = "Zip模塊"
+    UI_PATH = os.path.dirname(__file__) + '/' + "ZipWindow.ui"
+
+    def __init__(self):
+        super().__init__()
+        self.mainLayout = None
+        self.ui = uic.loadUi(self.UI_PATH, self)
+
+        self.initUi()
+
+    def initUi(self):
+        self.ui.zipPseSelBtn.clicked.connect(self.onZipPseSelBtnClick)
+        self.ui.zipPseSelOutputBtn.clicked.connect(self.onZipPseSelOutputBtn)
+        self.ui.pseEncBtn.clicked.connect(self.onPseEncBtnClick)
+        self.ui.pseDecBtn.clicked.connect(self.onPseDecBtnClick)
+        self.ui.zipStegPathSelBtn.clicked.connect(self.onZipStegPathSelBtnClick)
+        self.ui.zipStegInjectPathSelBtn.clicked.connect(self.onZipStegInjectPathSelBtnClick)
+        self.ui.zipStegOutputPathSelBtn.clicked.connect(self.onZipStegOutputPathSelBtnClick)
+        self.ui.zipInjectBtn.clicked.connect(self.onZipInjectBtnClick)
+        self.ui.zipToExtractPathSelBtn.clicked.connect(self.onZipToExtractPathSelBtnClick)
+        self.ui.zipExtractBtn.clicked.connect(self.onZipExtractBtnClick)
+    
+    def onZipPseSelBtnClick(self):
+        filePath, _ = QFileDialog.getOpenFileName(self, "Select File", filter = "Zip Files (*.zip)")
+        
+        self.ui.zipPsePathEdit.setText(filePath)
+        
+    def onZipPseSelOutputBtn(self):
+        folderPath = QFileDialog.getExistingDirectory(self, "Select Folder")
+        
+        self.ui.zipPseOutputPathEdit.setText(folderPath)
+
+    def onPseEncBtnClick(self):
+        pass
+
+    def onPseDecBtnClick(self):
+        pass
+    
+    def onZipStegPathSelBtnClick(self):
+        filePath, _ = QFileDialog.getOpenFileName(self, "Select File", filter = "Zip Files (*.zip)")
+        
+        self.ui.zipStegPathEdit.setText(filePath)
+
+    def onZipStegInjectPathSelBtnClick(self):
+        filePath, _ = QFileDialog.getOpenFileName(self, "Select File")
+        
+        self.ui.zipStegInjectPathEdit.setText(filePath)
+
+    def onZipStegOutputPathSelBtnClick(self):
+        folderPath = QFileDialog.getExistingDirectory(self, "Select Folder")
+        
+        self.ui.zipStegOutputPathEdit.setText(folderPath)
+
+
+    def onZipInjectBtnClick(self):
+        pass
+
+    def onZipExtractBtnClick(self):
+        pass
+
+    def onZipToExtractPathSelBtnClick(self):
+        filePath, _ = QFileDialog.getOpenFileName(self, "Select File", filter = "Zip Files (*.zip)")
+        
+        self.ui.zipToExtractPathEdit.setText(filePath)
 
 def test2():
     origZipPath = r"C:\Users\user\Desktop\todoooo.zip"
@@ -175,6 +247,9 @@ def test1():
     outputPath = r"C:\Users\user\Desktop\A\github\Img_steg_tool"
     ZipFake.encrypt(inputPath, outputPath)
     ZipFake.decrypt(outputPath + '\\' + 'todoooo_enc.zip', outputPath)
+
+
+
 
 if __name__ == "__main__":
     # test1()
