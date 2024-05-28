@@ -61,7 +61,7 @@ class ZipSteganography:
             injectFilePath(str): 目標文件路徑
             outputDir(str): 輸出目錄
         '''
-        outputFilePath = outputDir + '\\' + origZipPath.split('\\')[-1].split('.')[0] + "_zipsteg.zip"
+        outputFilePath = outputDir + '/' + origZipPath.split('/')[-1].split('.')[0] + "_zipsteg.zip"
 
         # 獲取 zip文件的 End of central directory record (eocd)
         eocdPos = self.getEocdPosition(origZipPath)
@@ -108,7 +108,7 @@ class ZipSteganography:
             filePath(str): 待提取的文件路徑
             outputDir(str): 輸出目錄
         '''
-        outputFilePath = outputDir + '\\' + filePath.split('\\')[-1].split('.')[0] + "_extract"
+        outputFilePath = outputDir + '/' + filePath.split('/')[-1].split('.')[0] + "_extract"
 
         eocdPos = self.getEocdPosition(filePath)
         eocd = self.eocdParse(filePath, eocdPos)
@@ -137,16 +137,20 @@ class ZipFake:
     """
     @staticmethod
     def modify(zipPath, outputPath, modifyByte:bytes):
-        zipName = zipPath.split("\\")[-1].split(".")[0]
+        zipName = zipPath.split("/")[-1].split(".")[0]
         with open(zipPath, mode = 'rb') as f:
             data = f.read()
             data = bytearray(data)
 
-            dirEntryIndex = data.find(b'\x50\x4B\x01\x02')
-            if dirEntryIndex == -1:
-                raise IndexError("[zip偽加密失敗] 指定zip文件可能有問題")
+            current = 0
+            # dirEntry 可能不至一個 (zip內是folder的情況), 因此要循環遍歷, 直到dirEntryIndex == -1
+            while True:
+                dirEntryIndex = data.find(b'\x50\x4B\x01\x02', current)
+                if dirEntryIndex == -1:
+                    break
 
-            data[dirEntryIndex + 8 : dirEntryIndex + 9] = modifyByte
+                data[dirEntryIndex + 8 : dirEntryIndex + 9] = modifyByte
+                current = dirEntryIndex + 1
 
         if modifyByte == b'\x05':
             output = f"{outputPath}/{zipName}_enc.zip"
@@ -189,6 +193,7 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.zipInjectBtn.clicked.connect(self.onZipInjectBtnClick)
         self.ui.zipToExtractPathSelBtn.clicked.connect(self.onZipToExtractPathSelBtnClick)
         self.ui.zipExtractBtn.clicked.connect(self.onZipExtractBtnClick)
+        self.ui.zipExtractOutputPathSelBtn.clicked.connect(self.onZipExtractOutputPathSelBtnClick)
     
     def onZipPseSelBtnClick(self):
         filePath, _ = QFileDialog.getOpenFileName(self, "Select File", filter = "Zip Files (*.zip)")
@@ -201,10 +206,22 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.zipPseOutputPathEdit.setText(folderPath)
 
     def onPseEncBtnClick(self):
-        pass
+        filePath = self.ui.zipPsePathEdit.text()
+        outputPath = self.ui.zipPseOutputPathEdit.text()
+        if filePath == '' or outputPath == '':
+            QMessageBox.warning(self, "警告", "Zip文件/輸出路徑為空，請先選擇")
+            return
+        ZipFake.encrypt(filePath, outputPath)
+        QMessageBox.information(self, "提示", "加密成功")
 
     def onPseDecBtnClick(self):
-        pass
+        filePath = self.ui.zipPsePathEdit.text()
+        outputPath = self.ui.zipPseOutputPathEdit.text()
+        if filePath == '' or outputPath == '':
+            QMessageBox.warning(self, "警告", "Zip文件/輸出路徑為空，請先選擇")
+            return
+        ZipFake.decrypt(filePath, outputPath)
+        QMessageBox.information(self, "提示", "解密成功")
     
     def onZipStegPathSelBtnClick(self):
         filePath, _ = QFileDialog.getOpenFileName(self, "Select File", filter = "Zip Files (*.zip)")
@@ -223,15 +240,38 @@ class Ui(QtWidgets.QMainWindow):
 
 
     def onZipInjectBtnClick(self):
-        pass
+        zipFilePath = self.ui.zipStegPathEdit.text()
+        injectFilePath = self.ui.zipStegInjectPathEdit.text()
+        outputPath = self.ui.zipStegOutputPathEdit.text()
+        if zipFilePath == '' or outputPath == '' or injectFilePath == '':
+            QMessageBox.warning(self, "警告", "Zip文件/注入文件/輸出路徑為空，請先選擇")
+            return
+        
+        zipSteg = ZipSteganography()
+        zipSteg.inject(zipFilePath, injectFilePath, outputPath)
+        QMessageBox.information(self, "提示", "注入成功")
+        
 
     def onZipExtractBtnClick(self):
-        pass
+        zipFilePath = self.ui.zipToExtractPathEdit.text()
+        outputPath = self.ui.zipExtractOutputPathEdit.text()
+        if zipFilePath == '' or outputPath == '':
+            QMessageBox.warning(self, "警告", "Zip文件/輸出路徑為空，請先選擇")
+            return
+        
+        zipSteg = ZipSteganography()
+        zipSteg.extract(zipFilePath, outputPath)
+        QMessageBox.information(self, "提示", "提取成功")
 
     def onZipToExtractPathSelBtnClick(self):
         filePath, _ = QFileDialog.getOpenFileName(self, "Select File", filter = "Zip Files (*.zip)")
         
         self.ui.zipToExtractPathEdit.setText(filePath)
+    
+    def onZipExtractOutputPathSelBtnClick(self):
+        folderPath = QFileDialog.getExistingDirectory(self, "Select Folder")
+        
+        self.ui.zipExtractOutputPathEdit.setText(folderPath)
 
 def test2():
     origZipPath = r"C:\Users\user\Desktop\todoooo.zip"

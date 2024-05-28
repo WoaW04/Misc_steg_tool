@@ -70,7 +70,7 @@
             <bool>true</bool>
            </property>
            <property name="placeholderText">
-            <string>請選擇待偽加密的Zip文件</string>
+            <string>請選擇待加密/解密的Zip文件</string>
            </property>
           </widget>
          </item>
@@ -157,7 +157,7 @@
 	border: 1px solid black
 }</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QLabel" name="label_2">
          <property name="enabled">
@@ -245,7 +245,7 @@
                 <bool>true</bool>
                </property>
                <property name="placeholderText">
-                <string>請選擇輸出目錄</string>
+                <string>請選擇隱寫文件的輸出目錄</string>
                </property>
               </widget>
              </item>
@@ -275,28 +275,56 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QLineEdit" name="zipToExtractPathEdit">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>請選擇待提取隱藏信息的Zip文件</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QLineEdit" name="zipToExtractPathEdit">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="placeholderText">
+                <string>請選擇待提取隱藏信息的Zip文件</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="zipToExtractPathSelBtn">
+               <property name="text">
+                <string>選擇</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QPushButton" name="zipToExtractPathSelBtn">
-             <property name="text">
-              <string>選擇</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <widget class="QLineEdit" name="zipExtractOutputPathEdit">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="readOnly">
+                <bool>true</bool>
+               </property>
+               <property name="placeholderText">
+                <string>請選擇提取後的輸出目錄</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="zipExtractOutputPathSelBtn">
+               <property name="text">
+                <string>選擇</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
