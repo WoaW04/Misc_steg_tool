@@ -26,7 +26,7 @@ class Ui(QtWidgets.QMainWindow):
 
     #输入图像文件
     def getFile(self):
-        file_path = QtWidgets.QFileDialog.getOpenFileName(None, '打开文件','',"图像文件 (*.jpg *.png *.bmp)")[0]
+        file_path = QFileDialog.getOpenFileName(None, '打开文件','',"图像文件 (*.jpg *.png *.bmp)")[0]
         if file_path != '':
             self.lineEdit.setText(file_path)
 
@@ -149,6 +149,7 @@ class Ui(QtWidgets.QMainWindow):
         super().__init__()
         self.mainLayout = None
         self.ui = uic.loadUi(self.UI_PATH, self)  # 加载UI
+        self.InitUI()
 
     def InitUI(self):
         # LSB文本隐写
@@ -372,9 +373,9 @@ def decodefile(input_filepath,output_filepath,password=None,progressBar=None):
         except:
             raise PasswordError("密码无效！")
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    window = Ui()
-    window.InitUI()
-    window.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     app = QtWidgets.QApplication(sys.argv)
+#     window = Ui()
+#     window.InitUI()
+#     window.show()
+#     sys.exit(app.exec_())

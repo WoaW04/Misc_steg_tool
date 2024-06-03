@@ -204,7 +204,6 @@ class Ui(QtWidgets.QMainWindow):
         folderPath = QFileDialog.getExistingDirectory(self, "Select Folder")
         
         self.ui.zipPseOutputPathEdit.setText(folderPath)
-
     def onPseEncBtnClick(self):
         filePath = self.ui.zipPsePathEdit.text()
         outputPath = self.ui.zipPseOutputPathEdit.text()
