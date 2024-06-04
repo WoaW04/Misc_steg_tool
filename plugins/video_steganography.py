@@ -17,6 +17,7 @@ class Ui(QtWidgets.QMainWindow):
     # 顯示在主程序Tab中的標題
     NAME = "Video隱寫模塊"
     UI_PATH = os.path.join(os.path.dirname(__file__), "VideoStegWindow.ui")
+    signal = None
 
     def __init__(self):
         super().__init__()
@@ -83,7 +84,7 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.progressBar.setValue(0)
         steganographier = VideoSteganography(self.ui.progressBar)
         steganographier.inject(inputFilePath=inputFilePath, coverVideoPath=coverVideoPath, password=password, outputPath=outputPath, videoType=videoType)
-        
+
         QMessageBox.information(self, "提示", "視頻隱寫成功!!!")
 
 
@@ -116,9 +117,6 @@ class VideoSteganography:
     
 
 
-    def log(self, message):
-        print(message)
-
     def readInChunks(self, file_object, chunk_size = 1024*1024):
         while True:
             data = file_object.read(chunk_size)
@@ -146,7 +144,7 @@ class VideoSteganography:
         
 
         with zipFile:
-            self.log(f"Compressing file 6.2: {inputFilePath}")
+            print(f"Compressing file 6.2: {inputFilePath}")
             
             # 當被隱寫的是文件夾時
             if os.path.isdir(inputFilePath):
@@ -160,14 +158,14 @@ class VideoSteganography:
                         
                         # 更新進度條
                         processedSize += os.path.getsize(fileFullPath)
-                        self.progressBar.setValue(processedSize)
+                        self.progressBar.setValue(int(100* (processedSize / self.totalFileSize)))
             # 表示只有單一文件
             else: 
                 
                 zipFile.write(inputFilePath, os.path.basename(inputFilePath))
                 # 更新進度條
                 processedSize = os.path.getsize(inputFilePath)
-                self.progressBar.setValue(processedSize)
+                self.progressBar.setValue(int(100* (processedSize / self.totalFileSize)))
 
     def inject(self, inputFilePath, 
                   coverVideoPath=None, 
@@ -198,7 +196,7 @@ class VideoSteganography:
         else:
             self.totalFileSize = os.path.getsize(inputFilePath)
         
-        self.progressBar.setRange(0, self.totalFileSize)
+        print("totalFileSize: ", self.totalFileSize)
 
         # processedSize表示處理進度
         processedSize = 0
@@ -213,27 +211,28 @@ class VideoSteganography:
             
                 try:
                     totalSizeHidden = os.path.getsize(coverVideoPath) + os.path.getsize(zipFilePath)
+                    print("totalSizeHidden: ", totalSizeHidden)
                     processedSize = 0
                     with open(coverVideoPath, "rb") as file1:
                         with open(zipFilePath, "rb") as file2:
                             with open(outputFile, "wb") as output:
-                                self.log(f"Hiding file: {inputFilePath}")
+                                print(f"Hiding file: {inputFilePath}")
 
                                 # 載體mp4
                                 for chunk in self.readInChunks(file1):
                                     output.write(chunk)
                                     processedSize += len(chunk)
-                                    self.progressBar.setValue(processedSize)
+                                    # self.progressBar.setValue(int(100 * (processedSize / self.totalFileSize)))
 
                                 # zip
                                 for chunk in self.readInChunks(file2):
                                     output.write(chunk)
                                     processedSize += len(chunk)
-                                    self.progressBar.setValue(processedSize)
+                                    # self.progressBar.setValue(int(100 * (processedSize / self.totalFileSize)))
 
                 
                 except Exception as e:
-                    self.log(f"在写入MP4文件时发生未预料的错误: {str(e)}")
+                    print(f"MP4文件寫入錯誤: {str(e)}")
                     raise
 
             # mkv的隱寫邏輯
@@ -254,17 +253,17 @@ class VideoSteganography:
                         raise subprocess.CalledProcessError(result.returncode, cmd, output=result.stdout, stderr=result.stderr)
 
                 except subprocess.CalledProcessError as cpe:
-                    self.log(f"隱寫時發生錯誤: {str(cpe)}")
-                    self.log(f'CalledProcessError output：{cpe.output}') if cpe.output else None
-                    self.log(f'CalledProcessError stderr：{cpe.stderr}') if cpe.stderr else None
+                    print(f"隱寫時發生錯誤: {str(cpe)}")
+                    print(f'CalledProcessError output：{cpe.output}') if cpe.output else None
+                    print(f'CalledProcessError stderr：{cpe.stderr}') if cpe.stderr else None
                     raise
 
                 except Exception as e:
-                    self.log(f"執行mkvmerge發生錯誤: {str(e)}")
+                    print(f"執行mkvmerge發生錯誤: {str(e)}")
                     raise
 
         except Exception as e:
-            self.log(f"隱寫時發生錯誤: {str(e)}")
+            print(f"隱寫時發生錯誤: {str(e)}")
             raise
         finally:
             # 刪除臨時的zip文件
@@ -354,7 +353,7 @@ class VideoSteganography:
                     if attachmentsName.endswith('.zip'):
                         try:
                             zipPath = outputPath
-                            self.log(f"Extracting ZIP file: {zipPath}")
+                            print(f"Extracting ZIP file: {zipPath}")
                             with pyzipper.AESZipFile(zipPath, 'r', compression=pyzipper.ZIP_DEFLATED, encryption=pyzipper.WZ_AES) as zipFile:
                                 zipFile.extractall(os.path.dirname(inputFilePath), pwd=password.encode())
                             

@@ -45,6 +45,7 @@ class Ui(QtWidgets.QMainWindow):
         # self.showbin = Thread(self)  # 创建线程以打印图片二进制信息
         # self.showbin.trigger.connect(self.update_text)
         self.importPlugins = {}  # 保存所有已加載的插件名
+        self.signals = {} # 保存插件的signal
         
         self.InitUI()
         self.initPlugin()
@@ -79,6 +80,11 @@ class Ui(QtWidgets.QMainWindow):
         module = import_module(pluginName)
         # 獲取模塊的Ui
         moduleUI = module.Ui()
+        
+        # 保存插件的signal, 用於兩者之間的信息傳遞
+        self.signals[pluginName] = moduleUI.signal
+
+        print(f"loading plugin: {pluginName}")
         # 添加到Tab中
         self.ui.Tab.addTab(moduleUI, moduleUI.NAME)
 
@@ -89,6 +95,11 @@ class Ui(QtWidgets.QMainWindow):
         self.CleanImg()
         self.ImgPath, self.ImgType = QFileDialog.getOpenFileName(self.centralwidget, "选择图片",
                                                                  "./", "Image files (*.jpg *.gif *.png *.jpeg)")
+        
+
+        # 發送信號給LSB插件, 內容為self.ImgPath
+        self.signals["plugins.LSB"].emit(self.ImgPath)
+
         if self.ImgPath == r'':
             warning = QMessageBox()  # 创建QMessageBox()对象
             warning.setIcon(QMessageBox.Warning)  # 设置弹窗的QMessageBox.Icon类型

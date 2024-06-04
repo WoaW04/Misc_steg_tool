@@ -174,6 +174,7 @@ class Ui(QtWidgets.QMainWindow):
     # 顯示在主程序Tab中的標題
     NAME = "Zip模塊"
     UI_PATH = os.path.join(os.path.dirname(__file__), "ZipWindow.ui")
+    signal = None
 
     def __init__(self):
         super().__init__()
