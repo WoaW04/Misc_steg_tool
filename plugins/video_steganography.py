@@ -1,5 +1,6 @@
 import os
 import random
+from PyQt5.QtCore import QObject
 import pyzipper
 import subprocess
 import string
@@ -33,8 +34,17 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.extractVideoSelBtn.clicked.connect(self.onExtractVideoSelBtnClick)
         self.ui.startStegBtn.clicked.connect(self.onStartStegBtnClick)
         self.ui.extractBtn.clicked.connect(self.onExtractBtnClick)
+        self.ui.videoTypeCbx.currentIndexChanged.connect(self.onVideoTypeChanged)
+        self.ui.injectTypeCbx.currentIndexChanged.connect(self.onInjectTypeChanged)
 
         self.ui.progressBar.setValue(0)
+
+    def onVideoTypeChanged(self, index):
+
+        self.ui.coverVideoPathEdit.setText("")
+    def onInjectTypeChanged(self, index):
+
+        self.ui.injectPathEdit.setText("")
 
     def check(self, *args):
         for arg in args:
@@ -82,14 +92,34 @@ class Ui(QtWidgets.QMainWindow):
             return
         
         self.ui.progressBar.setValue(0)
-        steganographier = VideoSteganography(self.ui.progressBar)
-        steganographier.inject(inputFilePath=inputFilePath, coverVideoPath=coverVideoPath, password=password, outputPath=outputPath, videoType=videoType)
 
-        QMessageBox.information(self, "提示", "視頻隱寫成功!!!")
+        steganographier = VideoStegThread(self, "inject", inputFilePath, coverVideoPath, password, outputPath, videoType)
+        # self.workThread = WorkThread(steganographier.inject, inputFilePath, coverVideoPath, password, outputPath, videoType)
+        steganographier.progressBarSignal.connect(self.onProgressBarUpdate)
+        steganographier.updateUISignal.connect(self.onStegUpdate)
+        # steganographier.inject(inputFilePath=inputFilePath, coverVideoPath=coverVideoPath, password=password, outputPath=outputPath, videoType=videoType)
 
+        steganographier.start()
 
+        
 
+        # QMessageBox.information(self, "提示", "視頻隱寫成功!!!")
 
+    def onStegUpdate(self, data):
+        '''
+        處理VideoSteg傳來的更新UI/處理完成信號
+
+        Args: 
+            data(dict): 該字典有以下屬性
+                - type(str): "UI_UPDATE" | "DONE"
+                - objectName(str): 定位ui控件的objectName
+                - text(str): 要設置的text值
+        '''
+        if data["type"] == "UI_UPDATE":
+            getattr(self.ui, data["objectName"]).setText(data["text"])
+        elif data["type"] == "DONE":
+            QMessageBox.information(self, "提示", data["text"])
+        
     def onExtractBtnClick(self):
         inputFilePath = self.ui.extractVideoPathEdit.text()
         password = None if self.ui.pwdEdit.text() == '' else self.ui.pwdEdit.text()
@@ -99,23 +129,41 @@ class Ui(QtWidgets.QMainWindow):
             QMessageBox.warning(self, "警告", "請檢查是否已選擇所有必選的路徑!!!")
             return
 
-        steganographier = VideoSteganography(self.ui.progressBar)
-        steganographier.extract(inputFilePath=inputFilePath, password=password, videoType=videoType)
+        # steganographier = VideoSteganography(self.ui.progressBar)
+        # steganographier.extract(inputFilePath=inputFilePath, password=password, videoType=videoType)
 
         QMessageBox.information(self, "提示", "隱寫文件提取成功!!!")
+    
 
-class VideoSteganography:
-    def __init__(self, progressBar):
-        # nglog
+    def onProgressBarUpdate(self, num):
+        self.ui.progressBar.setValue(num)
+
+
+class VideoStegThread(QThread):
+    progressBarSignal = pyqtSignal(int)
+    updateUISignal = pyqtSignal(dict)
+
+    def __init__(self, parent, func, *args):
+        super(VideoStegThread, self).__init__(parent)
+
         self.mkvmergeExe = os.path.join(os.path.dirname(__file__),'tools','mkvmerge.exe')
         self.mkvextractExe = os.path.join(os.path.dirname(__file__),'tools','mkvextract.exe')
         self.mkvinfoExe = os.path.join(os.path.dirname(__file__),'tools','mkvinfo.exe')
 
         self.totalFileSize = None
+        self.func = func
+        self.args = args
 
-        self.progressBar = progressBar
+
     
+    def run(self):
+        if self.func == "inject":
+            self.inject(*self.args)
+        elif self.func == "extract":
+            self.extract(*self.args)
 
+    def updateProgressBar(self, num):
+        self.progressBarSignal.emit(num)
 
     def readInChunks(self, file_object, chunk_size = 1024*1024):
         while True:
@@ -144,7 +192,7 @@ class VideoSteganography:
         
 
         with zipFile:
-            print(f"Compressing file 6.2: {inputFilePath}")
+            print(f"Compressing file: {inputFilePath}")
             
             # 當被隱寫的是文件夾時
             if os.path.isdir(inputFilePath):
@@ -158,14 +206,39 @@ class VideoSteganography:
                         
                         # 更新進度條
                         processedSize += os.path.getsize(fileFullPath)
-                        self.progressBar.setValue(int(100* (processedSize / self.totalFileSize)))
+
+                        self.updateProgressBar(int(100* (processedSize / self.totalFileSize)))
+                        
             # 表示只有單一文件
             else: 
                 
                 zipFile.write(inputFilePath, os.path.basename(inputFilePath))
                 # 更新進度條
                 processedSize = os.path.getsize(inputFilePath)
-                self.progressBar.setValue(int(100* (processedSize / self.totalFileSize)))
+
+                self.updateProgressBar(int(100* (processedSize / self.totalFileSize)))
+
+    def setProgressState(self, state):
+        if state == "compress":
+            stateText = "正在對待注入文件進行壓縮......"
+        elif state == "inject":
+            stateText = "壓縮完成，正在合並中......"
+
+        elif state == "complete":
+            stateText = "無"
+
+        self.updateUISignal.emit({
+            "type": "UI_UPDATE",
+            "objectName": "progressStateLabel",
+            "text": stateText
+        })
+    
+    def sendDoneSignal(self, text):
+        self.updateUISignal.emit({
+            "type": "DONE",
+            "objectName": None,
+            "text": text
+        })
 
     def inject(self, inputFilePath, 
                   coverVideoPath=None, 
@@ -182,7 +255,7 @@ class VideoSteganography:
             outputPath(str): 輸出目錄
             videoType(str): 視頻類型, 只支援mp4/mkv
         '''
-                
+
         # 臨時zip文件名
         zipFilePath = os.path.join(os.path.splitext(inputFilePath)[0] + "_hidden_tmp.zip")
         
@@ -200,8 +273,15 @@ class VideoSteganography:
 
         # processedSize表示處理進度
         processedSize = 0
+
+        # 設置顯示在UI上的進度狀態
+        self.setProgressState("compress")
+
         # 創建隱寫的臨時zip文件 (最終注入到coverVideo的是zip文件)
         self.compressFiles(zipFilePath, inputFilePath, processedSize=processedSize, password=password)
+
+        self.updateProgressBar(0)
+        self.setProgressState("inject")
 
         try:        
             # mp4的隱寫邏輯
@@ -222,14 +302,14 @@ class VideoSteganography:
                                 for chunk in self.readInChunks(file1):
                                     output.write(chunk)
                                     processedSize += len(chunk)
-                                    # self.progressBar.setValue(int(100 * (processedSize / self.totalFileSize)))
+
+                                    self.updateProgressBar(int(100* (processedSize / totalSizeHidden)))
 
                                 # zip
                                 for chunk in self.readInChunks(file2):
                                     output.write(chunk)
                                     processedSize += len(chunk)
-                                    # self.progressBar.setValue(int(100 * (processedSize / self.totalFileSize)))
-
+                                    self.updateProgressBar(int(100* (processedSize / totalSizeHidden)))
                 
                 except Exception as e:
                     print(f"MP4文件寫入錯誤: {str(e)}")
@@ -262,6 +342,8 @@ class VideoSteganography:
                     print(f"執行mkvmerge發生錯誤: {str(e)}")
                     raise
 
+            self.setProgressState("complete")
+            self.sendDoneSignal("視頻隱寫成功!!!")
         except Exception as e:
             print(f"隱寫時發生錯誤: {str(e)}")
             raise
@@ -368,50 +450,5 @@ class VideoSteganography:
                 print("該mkv文件沒有可提取的附件")
 
 
-def testReveal():
-    inputFilePath = "C:/Users/user/Desktop/testt/video_steg_test/cover_hidden.mp4"
-    password = "1234" 
-    typeOption = "mp4"
-    steganographier = VideoSteganography()
-
-    steganographier.extract(inputFilePath=inputFilePath, password=password, videoType=typeOption)
-
-def testReveal2():
-    inputFilePath = "C:/Users/user/Desktop/testt/video_steg_test/cover_hidden.mkv"
-    password = "1234" 
-    typeOption = "mkv"
-    steganographier = VideoSteganography()
-
-    steganographier.extract(inputFilePath=inputFilePath, password=password, videoType=typeOption)
-
-def testHide():
-    # inputFilePath = "C:/Users/user/Desktop/testt/video_steg_test/test.js"
-    inputFilePath = "C:/Users/user/Desktop/testt/video_steg_test/folder"
-    coverVideoPath = "C:/Users/user/Desktop/testt/video_steg_test/cover.mp4"
-    password = "1234" 
-    outputPath = "C:/Users/user/Desktop/testt/video_steg_test"
-    typeOption = "mp4"
-
-
-    steganographier = VideoSteganography()
-    steganographier.inject(inputFilePath=inputFilePath, coverVideoPath=coverVideoPath, password=password, outputPath=outputPath, videoType=typeOption)
-
-def testHide2():
-    # inputFilePath = "C:/Users/user/Desktop/testt/video_steg_test/test.js"
-    inputFilePath = "C:/Users/user/Desktop/testt/video_steg_test/folder"
-    coverVideoPath = "C:/Users/user/Desktop/testt/video_steg_test/cover.mkv"
-    password = "1234" 
-    outputPath = "C:/Users/user/Desktop/testt/video_steg_test"
-    typeOption = "mkv"
-
-
-    steganographier = VideoSteganography()
-    steganographier.inject(inputFilePath=inputFilePath, coverVideoPath=coverVideoPath, password=password, outputPath=outputPath, videoType=typeOption)
-
-if __name__ == "__main__":
-    # testHide()
-    testReveal()
-    # testHide2()
-    # testReveal2()
 
 
