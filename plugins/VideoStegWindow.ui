@@ -28,7 +28,16 @@
 QWidget{
 	border: 1px solid;
 	padding: 5px
-}</string>
+}
+
+    QPushButton:hover {
+        background-color: lightblue;
+        color: white;
+    }
+    QPushButton:pressed {
+        background-color: darkblue;
+        color: white;
+    }</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,2,0">
     <property name="spacing">

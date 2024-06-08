@@ -128,11 +128,11 @@ class Ui(QtWidgets.QMainWindow):
         if(not self.check(inputFilePath)):
             QMessageBox.warning(self, "警告", "請檢查是否已選擇所有必選的路徑!!!")
             return
+        
+        steganographier = VideoStegThread(self, "extract", inputFilePath, password, videoType)
+        steganographier.updateUISignal.connect(self.onStegUpdate)
+        steganographier.start()
 
-        # steganographier = VideoSteganography(self.ui.progressBar)
-        # steganographier.extract(inputFilePath=inputFilePath, password=password, videoType=videoType)
-
-        QMessageBox.information(self, "提示", "隱寫文件提取成功!!!")
     
 
     def onProgressBarUpdate(self, num):
@@ -226,6 +226,9 @@ class VideoStegThread(QThread):
 
         elif state == "complete":
             stateText = "無"
+
+        elif state == "extract":
+            stateText = "隱寫附件提取中......"
 
         self.updateUISignal.emit({
             "type": "UI_UPDATE",
@@ -361,7 +364,7 @@ class VideoStegThread(QThread):
             password(str): zip密碼, 需與inject時相同
             videoType(str): 視頻類型, 只支援mp4/mkv
         '''
-        
+        self.setProgressState("extract")
         if videoType == 'mp4':
             try:
 
@@ -449,6 +452,8 @@ class VideoStegThread(QThread):
             else:
                 print("該mkv文件沒有可提取的附件")
 
+        self.setProgressState("complete")
+        self.sendDoneSignal("隱寫附件提取成功!!!")
 
 
 
