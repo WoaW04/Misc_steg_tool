@@ -48,8 +48,8 @@ class Ui(QtWidgets.QMainWindow):
             self.displayMsg('错误','请选择输入的图像文件！','err')
         elif text == '':
             self.displayMsg('错误','请输入隐写文本！','err')
-        # elif password == '':
-        #     self.displayMsg('错误','请输入加密密码！','err')
+        elif password == '':
+            self.displayMsg('错误','请输入加密密码！','err')
         else:
             output_path = self.saveFile()
             if output_path == '':
@@ -71,8 +71,8 @@ class Ui(QtWidgets.QMainWindow):
         password = self.lineEdit_3.text()
         if input_path == '':
             self.displayMsg('错误','请选择输入的图像文件！','err')
-        # elif password == '':
-        #     self.displayMsg('错误','请输入解密密码！','err')
+        elif password == '':
+            self.displayMsg('错误','请输入解密密码！','err')
         else:
             try:
                 data = decode(input_path,password,self.progressBar_2)
@@ -106,8 +106,8 @@ class Ui(QtWidgets.QMainWindow):
             self.displayMsg('错误','请选择输入的图像文件！','err')
         elif secret_filepath == '':
             self.displayMsg('错误','请输入隐写文件！')
-        # elif password == '':
-        #     self.displayMsg('错误','请输入加密密码！','err')
+        elif password == '':
+            self.displayMsg('错误','请输入加密密码！','err')
         else:
             output_path = self.saveFile()
             if output_path == '':
@@ -129,8 +129,8 @@ class Ui(QtWidgets.QMainWindow):
         password = self.lineEdit_6.text()
         if input_path == '':
             self.displayMsg('错误','请选择输入的图像文件！','err')
-        # elif password == '':
-        #     self.displayMsg('错误','请输入解密密码！','err')
+        elif password == '':
+            self.displayMsg('错误','请输入解密密码！','err')
         else:
             try:
                 output_path = self.saveFile_1()

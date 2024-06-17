@@ -151,7 +151,7 @@
               <item>
                <widget class="QLabel" name="label_9">
                 <property name="text">
-                 <string>输入密码（可选）：</string>
+                 <string>输入密码：</string>
                 </property>
                </widget>
               </item>
@@ -270,7 +270,7 @@
               <item>
                <widget class="QLabel" name="label_10">
                 <property name="text">
-                 <string>输入密码（可选）：</string>
+                 <string>输入密码：</string>
                 </property>
                </widget>
               </item>
@@ -486,7 +486,7 @@
               <item>
                <widget class="QLabel" name="label_14">
                 <property name="text">
-                 <string>输入密码（可选）：</string>
+                 <string>输入密码：</string>
                 </property>
                </widget>
               </item>
@@ -605,7 +605,7 @@
               <item>
                <widget class="QLabel" name="label_16">
                 <property name="text">
-                 <string>输入密码（可选）：</string>
+                 <string>输入密码：</string>
                 </property>
                </widget>
               </item>
