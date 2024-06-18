@@ -55,7 +55,7 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.OpenImg.clicked.connect(self.OpenImge)
         self.ui.SaveCurrentImg.clicked.connect(self.SaveImg)
         self.ui.CleanCurrentImg.clicked.connect(self.CleanImg)
-        self.ui.btnLoadPlugin.clicked.connect(self.loadPlugin)
+        # self.ui.btnLoadPlugin.clicked.connect(self.loadPlugin)
 
     def initPlugin(self):
         pluginsDirName = self.PLUGIN_PATH.split("/")[-1]
