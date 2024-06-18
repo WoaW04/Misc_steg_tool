@@ -7,26 +7,21 @@ from PyQt5.QtCore import *
 import sys
 from importlib import import_module
 import os
-import sys
-
-# class Thread(QThread):
-#     trigger = pyqtSignal(str)
-
-#     def __init__(self, parent=None):
-#         super(Thread, self).__init__(parent)
-
-#     def run_(self, message):
-#         self.trigger.emit(message)
+import PIL.ImageOps
+from PIL import Image, ImageQt
 
 
-def ToPixmap(arr):
+def ToPixmap(img):
     """
-    将numpyarr转换为pixmap，用于显示
+    将PIL图像转换为pixmap，用于显示
     """
-    # 从numpy转为Image
-    tmp = Image.fromarray(arr).convert('RGB')
-    # 从Image转为QImage
-    tmp = QImage(tmp.tobytes(), tmp.width, tmp.height, QImage.Format_RGB888)
+    if img.mode == "RGBA":
+        tmp = QImage(img.tobytes(), img.width, img.height, QImage.Format_RGBA8888)
+    elif img.mode == "RGB":
+        tmp = QImage(img.tobytes(), img.width, img.height, QImage.Format_RGB888)
+    elif img.mode == "L":
+        tmp = QImage(img.tobytes(), img.width, img.height, QImage.Format_Alpha8)
+    # tmp = ImageQt.toqimage(img)
     # 返回将QImage转QPixmap
     return QPixmap.fromImage(tmp)
 
@@ -39,13 +34,23 @@ class Ui(QtWidgets.QMainWindow):
         self.mainLayout = None
         self.ui = uic.loadUi("mainwindow.ui", self)  # 加载UI
         self.ImgPath = r''  # 文件路径
-        self.ImgType = r''  # 文件类型
-        self.src = None  # 存储图像信息
-        self.bin = np.array([])  # 存储图像二进制信息的np数组
-        # self.showbin = Thread(self)  # 创建线程以打印图片二进制信息
-        # self.showbin.trigger.connect(self.update_text)
+        self.src = None  # 存储图像信息（PIL），用于进行转换
+        self.pixmap = None #存储图像信息（Pixmap），用于展示和保存
         self.importPlugins = {}  # 保存所有已加載的插件名
         self.signals = {} # 保存插件的signal
+        self.SwitchTable = ["Origin",
+                            "Rev",
+                            "GrayBit",
+                            "FullRed",
+                            "FullGreen",
+                            "FullBlue",
+                            "FullAlpha",
+                            "RedPlane0",
+                            "GreenPlane0",
+                            "BluePlane0"
+                            ]
+        self.SwitchTableIndex = 0
+        # 正常、反色、灰度、FullR、FullB、FullG、FullA、R0，G0，B0
         
         self.InitUI()
         self.initPlugin()
@@ -55,7 +60,10 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.OpenImg.clicked.connect(self.OpenImge)
         self.ui.SaveCurrentImg.clicked.connect(self.SaveImg)
         self.ui.CleanCurrentImg.clicked.connect(self.CleanImg)
-        # self.ui.btnLoadPlugin.clicked.connect(self.loadPlugin)
+        self.ui.PlaneSwitchL.clicked.connect(self.SwitchPlaneL)
+        self.ui.PlaneSwitchR.clicked.connect(self.SwitchPlaneR)
+        self.ui.PlaneSwitchL.setEnabled(False)
+        self.ui.PlaneSwitchR.setEnabled(False)
 
     def initPlugin(self):
         pluginsDirName = self.PLUGIN_PATH.split("/")[-1]
@@ -98,7 +106,7 @@ class Ui(QtWidgets.QMainWindow):
         打开图片并转为numpyarray
         """
         self.CleanImg()
-        self.ImgPath, self.ImgType = QFileDialog.getOpenFileName(self.centralwidget, "选择图片",
+        self.ImgPath, _ = QFileDialog.getOpenFileName(self.centralwidget, "选择图片",
                                                                  "./", "Image files (*.jpg *.gif *.png *.jpeg)")
         
 
@@ -115,20 +123,19 @@ class Ui(QtWidgets.QMainWindow):
             warning.exec_()  # 指定退出键；返回选中按钮的值
         else:
             self.src = Image.open(self.ImgPath, 'r')
-            self.bin = np.array(self.src)
-            self.ShowImg()
-            print("图像信息：")
-            print(f"长：{self.bin.shape[1]}\t宽：{self.bin.shape[0]}\t通道数：{self.bin.shape[2]}")
+            self.ShowImg("原图",self.src)
+            self.ui.PlaneSwitchL.setEnabled(True)
+            self.ui.PlaneSwitchR.setEnabled(True)
 
-    def ShowImg(self):
+    def ShowImg(self,text,src):
         """
         展示图片
         图片小于窗口则居中，否则出现滚动条
         """
         self.ShowImgLabel = QLabel()
-        pixmap = ToPixmap(self.bin)
-        imgsize = pixmap.size()
-        self.ShowImgLabel.setPixmap(pixmap)
+        self.pixmap = ToPixmap(src)
+        imgsize = self.pixmap.size()
+        self.ShowImgLabel.setPixmap(self.pixmap)
         self.ShowImgLabel.resize(imgsize)
         self.scroll = QScrollArea()
         self.scroll.setAlignment(Qt.AlignCenter)
@@ -138,6 +145,8 @@ class Ui(QtWidgets.QMainWindow):
             self.mainLayout = QGridLayout()
         self.mainLayout.addWidget(self.scroll, 0, 0)
         self.ui.ShowImgWidget.setLayout(self.mainLayout)
+        self.ui.CurrentPlane.setText(text)
+        
 
     def SaveImg(self):
         """
@@ -156,8 +165,7 @@ class Ui(QtWidgets.QMainWindow):
             if filepath == '':
                 pass
             else:
-                img = Image.fromarray(self.src)
-                img.save(filepath)
+                self.pixmap.save(filepath)
 
     def CleanImg(self):
         """
@@ -168,52 +176,133 @@ class Ui(QtWidgets.QMainWindow):
             self.ShowImgLabel.resize(QSize(200, 100))
             self.mainLayout.removeWidget(self.scroll)
             self.src = None  # 存储图像信息
-            self.bin = np.array([])  # 存储图像二进制信息的np数组
-            # self.ui.ShowBinaryBrowser.setText("")
+            self.pixmap = None
             self.ImgPath = r''
-
-    # def hexdump(self, nparr, bytes_per_line=16):
-    #     """
-    #     用于显示二进制，输入处理好的nparr
-    #     """
-    #     import concurrent.futures
-    #     import threading
-
-    #     lock = threading.Lock()
-    #     dumpDict = {}
-
-    #     def process_chunk(chunk, offset, idx):
-    #         hex_line = ' '.join(['{:02x}'.format(byte) for byte in chunk])
-    #         ascii_line = ''.join([chr(byte) if 32 <= byte <= 126 else '.' for byte in chunk])
-    #         currentLine = '{:08x}  {:48s}  {}'.format(offset, hex_line, ascii_line)
-    #         lock.acquire()
-    #         dumpDict[idx] = currentLine
-    #         lock.release()
-    #     bin = nparr.tobytes()
-    #     tmppath = self.ImgPath
-    #     offset = 0
-
-    #     idx = 0
-
-    #     with concurrent.futures.ThreadPoolExecutor(50) as t:
-    #         while offset <= len(bin):
-    #             chunk = bin[offset: offset + bytes_per_line]
-    #             if not chunk or tmppath != self.ImgPath:
-    #                 break
-
-    #             t.submit(process_chunk, chunk=chunk, offset=offset, idx=idx)
-    #             idx = idx + 1
-    #             offset += bytes_per_line
-    #             QApplication.processEvents()
-    #     self.showbin.run_("\n".join(dumpDict.values()))
-
-    # def update_text(self, message):
-    #     self.ui.ShowBinaryBrowser.setPlainText(message)
+            self.ui.PlaneSwitchL.setEnabled(False)
+            self.ui.PlaneSwitchR.setEnabled(False)
+            self.ui.CurrentPlane.setText("")
+            
+    def SwitchPlane(self,flag):
+        """
+        切换显示的位
+        """
+        self.SwitchTableIndex=(self.SwitchTableIndex + flag)%10
+        CurrentPlane = self.SwitchTable[self.SwitchTableIndex]
+        # self.SwitchTable = ["Origin",
+        #                     "Rev",
+        #                     "GrayBit",
+        #                     "FullRed",
+        #                     "FullGreen",
+        #                     "FullBlue",
+        #                     "FullAlpha",
+        #                     "RedPlane0",
+        #                     "GreenPlane0",
+        #                     "BluePlane0"
+        #                     ]
+        if CurrentPlane == "Origin":
+            self.ShowImg("原图",self.src)
+        elif CurrentPlane == "Rev":
+            rev = self.src.convert("RGB")
+            rev = PIL.ImageOps.invert(rev)
+            self.ShowImg("反色",rev)
+        elif CurrentPlane == "GrayBit":
+            # r==g==b则保留，否则设为白色
+            gb = self.src.convert("RGB")
+            width, height = gb.size
+            for x in range(width):
+                for y in range(height):
+                    # 获取像素的RGB值
+                    r, g, b = gb.getpixel((x, y))
+                    if r == g == b:
+                        continue
+                    else:
+                        gb.putpixel((x, y), (0, 0, 0))  
+            self.ShowImg("GrayBits",gb)
+        elif CurrentPlane == "FullRed":
+            fr = self.src.convert("RGB")
+            width, height = fr.size
+            for x in range(width):
+                for y in range(height):
+                    # 获取像素的RGB值
+                    r, g, b = fr.getpixel((x, y))
+                    fr.putpixel((x, y), (r, 0, 0))#仅保留红色通道
+            self.ShowImg("FullRed",fr)
+        elif CurrentPlane == "FullGreen":
+            fg = self.src.convert("RGB")
+            width, height = fg.size
+            for x in range(width):
+                for y in range(height):
+                    # 获取像素的RGB值
+                    r, g, b = fg.getpixel((x, y))
+                    fg.putpixel((x, y), (0, g, 0))
+            self.ShowImg("FullGreen",fg)
+        elif CurrentPlane == "FullBlue":
+            fb = self.src.convert("RGB")
+            width, height = fb.size
+            for x in range(width):
+                for y in range(height):
+                    # 获取像素的RGB值
+                    r, g, b = fb.getpixel((x, y))
+                    fb.putpixel((x, y), (0, 0, b))
+            self.ShowImg("FullBlue",fb)
+        elif CurrentPlane == "FullAlpha":
+            fa = self.src.convert("RGBA")
+            fa = fa.getchannel('A')
+            self.ShowImg("FullAlpha",fa)
+        elif CurrentPlane == "RedPlane0":
+            rp0 = self.src.convert("RGB")
+            width, height = rp0.size
+            for x in range(width):
+                for y in range(height):
+                    # 获取像素的RGB值
+                    r, g, b = rp0.getpixel((x, y))
+                    if r %2 == 1:
+                        #如果红色通道最低有效位为1则该像素置黑。否则置白
+                        rp0.putpixel((x, y), (255, 255, 255))
+                    else:
+                        rp0.putpixel((x, y), (0, 0, 0))
+            self.ShowImg("RedPlane0",rp0)
+        elif CurrentPlane == "GreenPlane0":
+            gp0 = self.src.convert("RGB")
+            width, height = gp0.size
+            for x in range(width):
+                for y in range(height):
+                    # 获取像素的RGB值
+                    r, g, b = gp0.getpixel((x, y))
+                    if g %2 == 1:
+                        gp0.putpixel((x, y), (255, 255, 255))
+                    else:
+                        gp0.putpixel((x, y), (0, 0, 0))
+            self.ShowImg("GreenPlane0",gp0)
+        elif CurrentPlane == "BluePlane0":
+            bp0 = self.src.convert("RGB")
+            width, height = bp0.size
+            for x in range(width):
+                for y in range(height):
+                    # 获取像素的RGB值
+                    r, g, b = bp0.getpixel((x, y))
+                    if b %2 == 1:
+                        bp0.putpixel((x, y), (255, 255, 255))
+                    else:
+                        bp0.putpixel((x, y), (0, 0, 0))
+            self.ShowImg("BluePlane0",bp0)
+    
+    def SwitchPlaneL(self):
+        """
+        获取上一种变换
+        """
+        self.SwitchPlane(-1)
+    
+    def SwitchPlaneR(self):
+        """
+        获取下一种变换
+        """
+        self.SwitchPlane(1)
 
 
 if __name__ == '__main__':
 
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     window = Ui()
     window.show()
     sys.exit(app.exec_())

@@ -1,5 +1,6 @@
 cryptography==41.0.7
 hachoir==3.3.0
+jpegio==0.2.8
 numpy==1.23.3
 opencv_python==4.6.0.66
 pathvalidate==3.2.0
