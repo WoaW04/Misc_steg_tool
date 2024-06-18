@@ -1,9 +1,0 @@
-Metadata-Version: 2.1
-Name: jpegio
-Version: 0.2.4
-Summary: A python package for accessing the internal variables of JPEG file format.
-Home-page: http://github.com/dwgoon/jpegio
-Author: Daewon Lee
-Author-email: daewon4you@gmail.com
-License: Apache License 2.0
-License-File: LICENSE
