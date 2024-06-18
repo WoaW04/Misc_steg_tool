@@ -1,0 +1,14 @@
+cryptography==41.0.7
+hachoir==3.3.0
+numpy==1.23.3
+opencv_python==4.6.0.66
+pathvalidate==3.2.0
+Pillow==10.0.1
+Pillow==9.2.0
+Pillow==10.3.0
+PyQt5==5.15.10
+PyQt5_sip==12.13.0
+python_magic==0.4.27
+pyzipper==0.3.6
+scipy==1.9.1
+soundfile==0.12.1
