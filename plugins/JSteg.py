@@ -1,20 +1,33 @@
 import io
+import os
 import sys
 import magic
 import numpy as np
 import jpegio as jio
 from hashlib import md5
 from base64 import urlsafe_b64encode
+from PyQt5 import uic
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
 from cryptography.fernet import Fernet
+from PyQt5.QtCore import pyqtSignal
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 
-class WatermarkApp(QMainWindow):
+class Ui(QMainWindow):
+    # 显示在主程序Tab中的标题
+    NAME = "JSteg隐写模块"
+    UI_PATH = os.path.join(os.path.dirname(__file__), "JSteg.ui")
+    signal = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
+        self.mainLayout = None
+        self.ui = uic.loadUi(self.UI_PATH, self)  # 加载UI
+        self.InitUI()
+
+    def InitUI(self):
 
         self.setWindowTitle("JPEG图片水印工具")
         self.resize(800, 600)
@@ -32,6 +45,11 @@ class WatermarkApp(QMainWindow):
         self.init_steg_tab()
         self.init_extract_tab()
         self.create_menu()
+        self.signal.connect(self.onMainMessage)
+
+    def onMainMessage(self, message):
+        # 接收來自主窗口的信息
+        self.lineEdit.setText(message)
 
     def init_steg_tab(self):
         self.layout = QVBoxLayout()
@@ -652,6 +670,6 @@ def extract_file(image_path, password=None, progressBar=None):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = WatermarkApp()
+    window = Ui()
     window.show()
     sys.exit(app.exec_())
