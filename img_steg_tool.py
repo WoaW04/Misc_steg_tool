@@ -7,7 +7,7 @@ from PyQt5.QtCore import *
 import sys
 from importlib import import_module
 import os
-
+import sys
 
 # class Thread(QThread):
 #     trigger = pyqtSignal(str)
@@ -60,9 +60,14 @@ class Ui(QtWidgets.QMainWindow):
     def initPlugin(self):
         pluginsDirName = self.PLUGIN_PATH.split("/")[-1]
         fileNames = os.listdir(self.PLUGIN_PATH)
+        # 將plugins目錄添加到sys.path, 防止在插件中出現ImportError
+        pluginsPath = os.path.join(os.path.dirname(__file__), "plugins")
+        sys.path.append(pluginsPath)
+
         for fileName in fileNames:
             if fileName.endswith(".py"):
                 self.loadPlugin(f"{pluginsDirName}.{fileName.split('.')[0]}")
+
 
     def loadPlugin(self, pluginName):
 

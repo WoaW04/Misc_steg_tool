@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+
 class Eocd:
     def __init__(self):
         self.elDirectoryOffset = 0
