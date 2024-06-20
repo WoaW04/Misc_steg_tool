@@ -15,7 +15,7 @@ from cryptography.fernet import Fernet
 import sys
 def getCurrentPath():
     if hasattr(sys, 'frozen'):  # 可执行文件走这里
-        return os.path.dirname(sys.executable)
+        return os.path.dirname(sys.executable) + "/plugins/"
     return os.path.dirname(__file__)  # 源码走这里
 
 
