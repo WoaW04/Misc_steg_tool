@@ -9,7 +9,7 @@ from importlib import import_module
 from importlib.util import spec_from_file_location, module_from_spec
 import os
 import PIL.ImageOps
-from PIL import Image, ImageQt
+from PIL import Image
 
 def getCurrentPath():
     if hasattr(sys, 'frozen'):  # 可执行文件走这里
