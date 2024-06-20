@@ -96,17 +96,20 @@ class Ui(QtWidgets.QMainWindow):
             return
 
         self.importPlugins[pluginName] = True
-        # py動態加載模塊的方式
-        module = import_module(pluginName)
-        # 獲取模塊的Ui
-        moduleUI = module.Ui()
-        
-        # 保存插件的signal, 用於兩者之間的信息傳遞
-        self.signals[pluginName] = moduleUI.signal
+        try:
+            # py動態加載模塊的方式
+            module = import_module(pluginName)
+            # 獲取模塊的Ui
+            moduleUI = module.Ui()
 
-        print(f"loading plugin: {pluginName}")
-        # 添加到Tab中
-        self.ui.Tab.addTab(moduleUI, moduleUI.NAME)
+            # 保存插件的signal, 用於兩者之間的信息傳遞
+            self.signals[pluginName] = moduleUI.signal
+
+            print(f"loading plugin: {pluginName}")
+            # 添加到Tab中
+            self.ui.Tab.addTab(moduleUI, moduleUI.NAME)
+        except:
+            print(f"load plugin: {pluginName} failed :(")
 
     def OpenImge(self):
         """
@@ -115,10 +118,6 @@ class Ui(QtWidgets.QMainWindow):
         self.CleanImg()
         self.ImgPath, _ = QFileDialog.getOpenFileName(self.centralwidget, "选择图片",
                                                                  "./", "Image files (*.jpg *.gif *.png *.jpeg)")
-        
-
-        # 發送信號給LSB插件, 內容為self.ImgPath
-        self.signals["plugins.LSB"].emit(self.ImgPath)
 
         if self.ImgPath == r'':
             warning = QMessageBox()  # 创建QMessageBox()对象
