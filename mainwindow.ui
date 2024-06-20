@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Img_steg_tool</class>
- <widget class="QMainWindow" name="Img_steg_tool">
+ <class>Misc_steg_tool</class>
+ <widget class="QMainWindow" name="Misc_steg_tool">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Image Steg Tool</string>
+   <string>Misc Steg Tool</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
