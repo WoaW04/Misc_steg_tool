@@ -8,7 +8,6 @@ from PIL import Image
 
 from pathvalidate import *
 from sstv_module import sstv_decode
-# from sstv_decode import SSTVDecoder
 from sstv_module import sstv_encode
 
 import sys
@@ -97,13 +96,13 @@ class Ui(QtWidgets.QMainWindow):
     
     def onStegUpdate(self, data):
         '''
-        處理SSTVThread傳來的更新UI/處理完成信號
+        处理SSTVThread传来的更新UI/处理完成信号
 
         Args: 
-            data(dict): 該字典有以下屬性
+            data(dict): 字典属性如下
                 - type(str): "UI_UPDATE" | "DONE"
                 - objectName(str): 定位ui控件的objectName
-                - text(str): 要設置的text值
+                - text(str): 要输出的text值
         '''
         if data["type"] == "PROGRESSING":
             getattr(self.ui, data["objectName"]).setText(data["text"])
@@ -192,7 +191,6 @@ class SSTVThread(QThread):
         resample = getattr(Image, "BICUBIC")
         orig_ratio = image.width / image.height
         mode_ratio = mode.WIDTH / mode.HEIGHT
-        # crop = orig_ratio != mode_ratio
         t = orig_ratio > mode_ratio
         if t:
             w = mode.WIDTH
