@@ -55,7 +55,7 @@ class ZipSteganography:
 
     def inject(self, origZipPath, injectFilePath, outputDir):
         '''
-        檢查注入的數據大小, 上限是2^32-1
+        檢查數據大小
 
         Args:
             origZipPath(str): 原zip文件路徑

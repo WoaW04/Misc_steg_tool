@@ -103,7 +103,7 @@ class Ui(QtWidgets.QMainWindow):
             print(f"load plugin: {pluginName} failed :(")
 
 
-    def OpenIamge(self):
+    def OpenImage(self):
         """
         打开图片并转为PIL格式
         """

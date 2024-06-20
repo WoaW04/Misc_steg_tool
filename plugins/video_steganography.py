@@ -366,14 +366,8 @@ class VideoStegThread(QThread):
         self.setProgressState("extract")
         if videoType == 'mp4':
             try:
-
                 with open(inputFilePath, "rb") as file:
-                    fileData = file.read()
-
-                # 計算zip數據起始地址
-                zipStartPos = len(fileData) - os.path.getsize(inputFilePath)
-                zipData = fileData[zipStartPos:]
-
+                    zipData = file.read()
                 # 創建臨時zip文件
                 zipPath = os.path.splitext(inputFilePath)[0] + "_extracted.zip"
                 with open(zipPath, "wb") as file:
