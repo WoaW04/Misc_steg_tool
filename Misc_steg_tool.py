@@ -63,7 +63,7 @@ class Ui(QtWidgets.QMainWindow):
 
 
     def InitUI(self):
-        self.ui.OpenImg.clicked.connect(self.OpenImge)
+        self.ui.OpenImg.clicked.connect(self.OpenImage)
         self.ui.SaveCurrentImg.clicked.connect(self.SaveImg)
         self.ui.CleanCurrentImg.clicked.connect(self.CleanImg)
         self.ui.PlaneSwitchL.clicked.connect(self.SwitchPlaneL)
@@ -75,7 +75,7 @@ class Ui(QtWidgets.QMainWindow):
     def initPlugin(self):
         pluginsDirName = self.PLUGIN_PATH.split("/")[-1]
         fileNames = os.listdir(self.PLUGIN_PATH)
-        # 將plugins目錄添加到sys.path, 防止在插件中出現ImportError
+        # 将plugins目录添加到sys.path, 防止在插件中出现ImportError
         pluginsPath = os.path.join(getCurrentPath(), "plugins")
         sys.path.append(pluginsPath)
 
@@ -86,23 +86,14 @@ class Ui(QtWidgets.QMainWindow):
 
     def loadPlugin(self, pluginName):
 
-        # filePath, _ = QFileDialog.getOpenFileName(self, "Select Plugin", filter="Python Files (*.py)")
-        # # 獲取.py文件名
-        # pluginName = filePath.split("/")[-1].split(".")[0]
-
-        # 防止重複添加
-        if self.importPlugins.get(pluginName) != None:
-            QMessageBox.warning(self, "警告", f"{pluginName}插件已被加載，請勿重複添加!!!")
-            return
-
         self.importPlugins[pluginName] = True
         try:
-            # py動態加載模塊的方式
+            # py动态加载模块
             module = import_module(pluginName)
-            # 獲取模塊的Ui
+            # 获取模块加载的ui
             moduleUI = module.Ui()
 
-            # 保存插件的signal, 用於兩者之間的信息傳遞
+            # 保存插件的signalsignal, 用于两者之间的信息传递
             self.signals[pluginName] = moduleUI.signal
 
             print(f"loading plugin: {pluginName}")
@@ -111,9 +102,10 @@ class Ui(QtWidgets.QMainWindow):
         except:
             print(f"load plugin: {pluginName} failed :(")
 
-    def OpenImge(self):
+
+    def OpenIamge(self):
         """
-        打开图片并转为numpyarray
+        打开图片并转为PIL格式
         """
         self.CleanImg()
         self.ImgPath, _ = QFileDialog.getOpenFileName(self.centralwidget, "选择图片",
