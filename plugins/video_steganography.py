@@ -1,23 +1,22 @@
 import os
-import random
 from PyQt5.QtCore import QObject
 import pyzipper
 import subprocess
-import string
-from hachoir.parser import createParser
-from hachoir.metadata import extractMetadata
-import struct
-from datetime import datetime, timedelta
-
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+import sys
+
+def getCurrentPath():
+    if hasattr(sys, 'frozen'):  # 可执行文件走这里
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(__file__)  # 源码走这里
 
 class Ui(QtWidgets.QMainWindow):
     # 顯示在主程序Tab中的標題
     NAME = "Video隱寫模塊"
-    UI_PATH = os.path.join(os.path.dirname(__file__), "VideoStegWindow.ui")
+    UI_PATH = os.path.join(getCurrentPath(), "VideoStegWindow.ui")
     signal = None
 
     def __init__(self):
@@ -146,9 +145,9 @@ class VideoStegThread(QThread):
     def __init__(self, parent, func, *args):
         super(VideoStegThread, self).__init__(parent)
 
-        self.mkvmergeExe = os.path.join(os.path.dirname(__file__),'tools','mkvmerge.exe')
-        self.mkvextractExe = os.path.join(os.path.dirname(__file__),'tools','mkvextract.exe')
-        self.mkvinfoExe = os.path.join(os.path.dirname(__file__),'tools','mkvinfo.exe')
+        self.mkvmergeExe = os.path.join(getCurrentPath(),'tools','mkvmerge.exe')
+        self.mkvextractExe = os.path.join(getCurrentPath(),'tools','mkvextract.exe')
+        self.mkvinfoExe = os.path.join(getCurrentPath(),'tools','mkvinfo.exe')
 
         self.totalFileSize = None
         self.func = func

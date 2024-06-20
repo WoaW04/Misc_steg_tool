@@ -14,11 +14,16 @@ from PyQt5.QtCore import pyqtSignal
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
+import sys
+def getCurrentPath():
+    if hasattr(sys, 'frozen'):  # 可执行文件走这里
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(__file__)  # 源码走这里
 
 class Ui(QMainWindow):
     # 显示在主程序Tab中的标题
     NAME = "JSteg隐写模块"
-    UI_PATH = os.path.join(os.path.dirname(__file__), "JSteg.ui")
+    UI_PATH = os.path.join(getCurrentPath(), "JSteg.ui")
     signal = pyqtSignal(str)
 
     def __init__(self):

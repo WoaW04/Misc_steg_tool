@@ -6,9 +6,15 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import sys
 from importlib import import_module
+from importlib.util import spec_from_file_location, module_from_spec
 import os
 import PIL.ImageOps
 from PIL import Image, ImageQt
+
+def getCurrentPath():
+    if hasattr(sys, 'frozen'):  # 可执行文件走这里
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(__file__)  # 源码走这里
 
 
 def ToPixmap(img):
@@ -27,7 +33,7 @@ def ToPixmap(img):
 
 
 class Ui(QtWidgets.QMainWindow):
-    PLUGIN_PATH = os.path.dirname(__file__) + "/" + "plugins"
+    PLUGIN_PATH = getCurrentPath() + "/" + "plugins"
 
     def __init__(self):
         super().__init__()
@@ -65,11 +71,12 @@ class Ui(QtWidgets.QMainWindow):
         self.ui.PlaneSwitchL.setEnabled(False)
         self.ui.PlaneSwitchR.setEnabled(False)
 
+
     def initPlugin(self):
         pluginsDirName = self.PLUGIN_PATH.split("/")[-1]
         fileNames = os.listdir(self.PLUGIN_PATH)
         # 將plugins目錄添加到sys.path, 防止在插件中出現ImportError
-        pluginsPath = os.path.join(os.path.dirname(__file__), "plugins")
+        pluginsPath = os.path.join(getCurrentPath(), "plugins")
         sys.path.append(pluginsPath)
 
         for fileName in fileNames:

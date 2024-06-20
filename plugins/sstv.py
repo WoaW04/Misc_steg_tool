@@ -11,6 +11,12 @@ from sstv_module import sstv_decode
 # from sstv_decode import SSTVDecoder
 from sstv_module import sstv_encode
 
+import sys
+def getCurrentPath():
+    if hasattr(sys, 'frozen'):  # 可执行文件走这里
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(__file__)  # 源码走这里
+
 SSTV_MODULES = [sstv_encode]
 def build_module_map():
             try:
@@ -26,7 +32,7 @@ def build_module_map():
 class Ui(QtWidgets.QMainWindow):
     # 显示在主程序Tab中的标题
     NAME = "SSTV隐写模块"
-    UI_PATH = os.path.join(os.path.dirname(__file__), "sstv.ui")
+    UI_PATH = os.path.join(getCurrentPath(), "sstv.ui")
     signal = None
 
     def __init__(self):

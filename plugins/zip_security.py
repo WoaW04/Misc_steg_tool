@@ -170,11 +170,16 @@ class ZipFake:
         ZipFake.modify(zipPath, outputPath, b'\x00')
 
 
+import sys
+def getCurrentPath():
+    if hasattr(sys, 'frozen'):  # 可执行文件走这里
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(__file__)  # 源码走这里
 
 class Ui(QtWidgets.QMainWindow):
     # 顯示在主程序Tab中的標題
     NAME = "Zip模塊"
-    UI_PATH = os.path.join(os.path.dirname(__file__), "ZipWindow.ui")
+    UI_PATH = os.path.join(getCurrentPath(), "ZipWindow.ui")
     signal = None
 
     def __init__(self):

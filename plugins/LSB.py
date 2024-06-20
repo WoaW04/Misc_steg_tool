@@ -12,6 +12,14 @@ from base64 import urlsafe_b64encode
 from cryptography.fernet import Fernet
 from PyQt5.QtCore import pyqtSignal
 
+
+import sys
+def getCurrentPath():
+    if hasattr(sys, 'frozen'):  # 可执行文件走这里
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(__file__)  # 源码走这里
+
+
 class Ui(QtWidgets.QMainWindow):
 
     signal = pyqtSignal(str)
@@ -147,7 +155,7 @@ class Ui(QtWidgets.QMainWindow):
         
     # 显示在主程序Tab中的标题
     NAME = "LSB隐写模块"
-    UI_PATH = os.path.dirname(__file__) + '/' + "LSBWindow.ui"
+    UI_PATH = getCurrentPath() + '/' + "LSBWindow.ui"
 
     def __init__(self):
         super().__init__()
