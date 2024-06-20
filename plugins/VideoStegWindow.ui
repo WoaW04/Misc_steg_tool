@@ -22,7 +22,7 @@
    </property>
    <property name="styleSheet">
     <string notr="true">*{
-	font-size: 18px
+	font-size: 16pt
 }
 
 QWidget{
@@ -57,7 +57,7 @@ QWidget{
             <widget class="QLabel" name="label">
              <property name="font">
               <font>
-               <pointsize>-1</pointsize>
+               <pointsize>16</pointsize>
               </font>
              </property>
              <property name="text">
@@ -80,7 +80,7 @@ QWidget{
             <widget class="QLabel" name="label_2">
              <property name="font">
               <font>
-               <pointsize>-1</pointsize>
+               <pointsize>16</pointsize>
               </font>
              </property>
              <property name="text">
@@ -147,7 +147,7 @@ QWidget{
           <widget class="QPushButton" name="outputPathSelBtn">
            <property name="font">
             <font>
-             <pointsize>-1</pointsize>
+             <pointsize>16</pointsize>
             </font>
            </property>
            <property name="text">
@@ -183,7 +183,7 @@ QWidget{
               <widget class="QPushButton" name="coverVideoSelBtn">
                <property name="font">
                 <font>
-                 <pointsize>-1</pointsize>
+                 <pointsize>16</pointsize>
                 </font>
                </property>
                <property name="text">
@@ -209,7 +209,7 @@ QWidget{
               <widget class="QPushButton" name="injectPathSelBtn">
                <property name="font">
                 <font>
-                 <pointsize>-1</pointsize>
+                 <pointsize>16</pointsize>
                 </font>
                </property>
                <property name="text">
@@ -239,7 +239,7 @@ QWidget{
             <widget class="QPushButton" name="extractVideoSelBtn">
              <property name="font">
               <font>
-               <pointsize>-1</pointsize>
+               <pointsize>16</pointsize>
               </font>
              </property>
              <property name="text">

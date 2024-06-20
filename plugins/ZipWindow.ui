@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
     <string notr="true">*{
-	font-size: 18px
+	font-size: 16pt
 }
 
 QWidget{
@@ -66,7 +66,7 @@ QWidget{
          </property>
          <property name="font">
           <font>
-           <pointsize>-1</pointsize>
+           <pointsize>16</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -145,7 +145,7 @@ QWidget{
            </property>
            <property name="font">
             <font>
-             <pointsize>-1</pointsize>
+             <pointsize>16</pointsize>
             </font>
            </property>
            <property name="text">
@@ -163,7 +163,7 @@ QWidget{
            </property>
            <property name="font">
             <font>
-             <pointsize>-1</pointsize>
+             <pointsize>16</pointsize>
             </font>
            </property>
            <property name="text">
@@ -197,7 +197,7 @@ QWidget{
          </property>
          <property name="font">
           <font>
-           <pointsize>-1</pointsize>
+           <pointsize>16</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
@@ -292,7 +292,7 @@ QWidget{
           <widget class="QPushButton" name="zipInjectBtn">
            <property name="font">
             <font>
-             <pointsize>-1</pointsize>
+             <pointsize>16</pointsize>
             </font>
            </property>
            <property name="text">
@@ -360,7 +360,7 @@ QWidget{
           <widget class="QPushButton" name="zipExtractBtn">
            <property name="font">
             <font>
-             <pointsize>-1</pointsize>
+             <pointsize>16</pointsize>
             </font>
            </property>
            <property name="text">
