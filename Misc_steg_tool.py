@@ -179,6 +179,7 @@ class Ui(QtWidgets.QMainWindow):
             self.ui.PlaneSwitchL.setEnabled(False)
             self.ui.PlaneSwitchR.setEnabled(False)
             self.ui.CurrentPlane.setText("")
+            self.SwitchTableIndex = 0
             
     def SwitchPlane(self,flag):
         """
@@ -200,47 +201,55 @@ class Ui(QtWidgets.QMainWindow):
         if CurrentPlane == "Origin":
             self.ShowImg("原图",self.src)
         elif CurrentPlane == "Rev":
-            rev = self.src.convert("RGB")
-            rev = PIL.ImageOps.invert(rev)
-            self.ShowImg("反色",rev)
+            rev = self.src
+            if rev.mode == 'RGBA':
+                r,g,b,a = rev.split()
+                rgb_image = Image.merge('RGB', (r,g,b))
+                inverted_image = PIL.ImageOps.invert(rgb_image)
+                r2,g2,b2 = inverted_image.split()
+                final_transparent_image = Image.merge('RGBA', (r2,g2,b2,a))
+                self.ShowImg("反色",final_transparent_image)
+            else:
+                inverted_image = PIL.ImageOps.invert(rev)
+                self.ShowImg("原图",inverted_image)
         elif CurrentPlane == "GrayBit":
             # r==g==b则保留，否则设为白色
-            gb = self.src.convert("RGB")
+            gb = self.src.convert("RGBA")
             width, height = gb.size
             for x in range(width):
                 for y in range(height):
                     # 获取像素的RGB值
-                    r, g, b = gb.getpixel((x, y))
+                    r, g, b, _ = gb.getpixel((x, y))
                     if r == g == b:
                         continue
                     else:
                         gb.putpixel((x, y), (0, 0, 0))  
             self.ShowImg("GrayBits",gb)
         elif CurrentPlane == "FullRed":
-            fr = self.src.convert("RGB")
+            fr = self.src.convert("RGBA")
             width, height = fr.size
             for x in range(width):
                 for y in range(height):
                     # 获取像素的RGB值
-                    r, g, b = fr.getpixel((x, y))
+                    r, g, b,_ = fr.getpixel((x, y))
                     fr.putpixel((x, y), (r, 0, 0))#仅保留红色通道
             self.ShowImg("FullRed",fr)
         elif CurrentPlane == "FullGreen":
-            fg = self.src.convert("RGB")
+            fg = self.src.convert("RGBA")
             width, height = fg.size
             for x in range(width):
                 for y in range(height):
                     # 获取像素的RGB值
-                    r, g, b = fg.getpixel((x, y))
+                    r, g, b,_ = fg.getpixel((x, y))
                     fg.putpixel((x, y), (0, g, 0))
             self.ShowImg("FullGreen",fg)
         elif CurrentPlane == "FullBlue":
-            fb = self.src.convert("RGB")
+            fb = self.src.convert("RGBA")
             width, height = fb.size
             for x in range(width):
                 for y in range(height):
                     # 获取像素的RGB值
-                    r, g, b = fb.getpixel((x, y))
+                    r, g, b,_ = fb.getpixel((x, y))
                     fb.putpixel((x, y), (0, 0, b))
             self.ShowImg("FullBlue",fb)
         elif CurrentPlane == "FullAlpha":
@@ -248,12 +257,12 @@ class Ui(QtWidgets.QMainWindow):
             fa = fa.getchannel('A')
             self.ShowImg("FullAlpha",fa)
         elif CurrentPlane == "RedPlane0":
-            rp0 = self.src.convert("RGB")
+            rp0 = self.src.convert("RGBA")
             width, height = rp0.size
             for x in range(width):
                 for y in range(height):
                     # 获取像素的RGB值
-                    r, g, b = rp0.getpixel((x, y))
+                    r, g, b,_ = rp0.getpixel((x, y))
                     if r %2 == 1:
                         #如果红色通道最低有效位为1则该像素置黑。否则置白
                         rp0.putpixel((x, y), (255, 255, 255))
@@ -261,24 +270,24 @@ class Ui(QtWidgets.QMainWindow):
                         rp0.putpixel((x, y), (0, 0, 0))
             self.ShowImg("RedPlane0",rp0)
         elif CurrentPlane == "GreenPlane0":
-            gp0 = self.src.convert("RGB")
+            gp0 = self.src.convert("RGBA")
             width, height = gp0.size
             for x in range(width):
                 for y in range(height):
                     # 获取像素的RGB值
-                    r, g, b = gp0.getpixel((x, y))
+                    r, g, b,_ = gp0.getpixel((x, y))
                     if g %2 == 1:
                         gp0.putpixel((x, y), (255, 255, 255))
                     else:
                         gp0.putpixel((x, y), (0, 0, 0))
             self.ShowImg("GreenPlane0",gp0)
         elif CurrentPlane == "BluePlane0":
-            bp0 = self.src.convert("RGB")
+            bp0 = self.src.convert("RGBA")
             width, height = bp0.size
             for x in range(width):
                 for y in range(height):
                     # 获取像素的RGB值
-                    r, g, b = bp0.getpixel((x, y))
+                    r, g, b, _ = bp0.getpixel((x, y))
                     if b %2 == 1:
                         bp0.putpixel((x, y), (255, 255, 255))
                     else:
