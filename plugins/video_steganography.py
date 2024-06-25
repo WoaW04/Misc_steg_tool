@@ -123,12 +123,13 @@ class Ui(QtWidgets.QMainWindow):
         inputFilePath = self.ui.extractVideoPathEdit.text()
         password = None if self.ui.pwdEdit.text() == '' else self.ui.pwdEdit.text()
         videoType = self.ui.videoTypeCbx.currentText()
+        outputPath = self.ui.outputPathEdit.text()
 
-        if(not self.check(inputFilePath)):
+        if(not self.check(inputFilePath, outputPath)):
             QMessageBox.warning(self, "警告", "請檢查是否已選擇所有必選的路徑!!!")
             return
         
-        steganographier = VideoStegThread(self, "extract", inputFilePath, password, videoType)
+        steganographier = VideoStegThread(self, "extract", inputFilePath, outputPath, password, videoType)
         steganographier.updateUISignal.connect(self.onStegUpdate)
         steganographier.start()
 
@@ -144,7 +145,7 @@ class VideoStegThread(QThread):
 
     def __init__(self, parent, func, *args):
         super(VideoStegThread, self).__init__(parent)
-
+        print("func: ", func)
         self.mkvmergeExe = os.path.join(getCurrentPath(),'tools','mkvmerge.exe')
         self.mkvextractExe = os.path.join(getCurrentPath(),'tools','mkvextract.exe')
         self.mkvinfoExe = os.path.join(getCurrentPath(),'tools','mkvinfo.exe')
@@ -354,7 +355,7 @@ class VideoStegThread(QThread):
             os.remove(zipFilePath)
 
     
-    def extract(self, inputFilePath, password=None, videoType=None):
+    def extract(self, inputFilePath, outputPath, password=None, videoType=None):
         '''
         提取隱寫文件/文件夾
         
@@ -368,11 +369,12 @@ class VideoStegThread(QThread):
             try:
                 with open(inputFilePath, "rb") as file:
                     zipData = file.read()
+
+                outputFile = outputPath + '/' + inputFilePath.split('/')[-1].split('.')[0] + "_extracted.zip"
                 # 創建臨時zip文件
-                zipPath = os.path.splitext(inputFilePath)[0] + "_extracted.zip"
+                zipPath = outputFile
                 with open(zipPath, "wb") as file:
                     file.write(zipData)
-
 
                 # 解壓臨時zip文件
                 if password:
